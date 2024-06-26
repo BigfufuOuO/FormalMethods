@@ -1,0 +1,1 @@
+../NuSMV-2.6.0-Linux/bin/NuSMV hard2.smv
