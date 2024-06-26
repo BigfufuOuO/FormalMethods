@@ -1,0 +1,152 @@
+MODULE main
+    VAR
+        c2_3: {0, 2, 4, 6};
+        c3_4: {0, 2, 4, 6};
+        c4_6: {0, 2, 4, 6};
+        c6_7: {0, 2, 4, 6};
+        c15_16: {0, 2, 4, 6};
+        c16_2: {0, 2, 4, 6};
+        c3_17: {0, 2, 4, 6};
+        c7_17: {0, 2, 4, 6};
+        c15_17: {0, 2, 4, 6};
+        pr2: process ac1_1(c16_2, c2_3, 2, {4, 6}, TRUE);
+        pr3: process ac1_1_T(c2_3, c3_4, c3_17, 2, 4, 6);
+        pr4: process ac1_1(c3_4, c4_6, 4, {2, 6}, TRUE);
+        pr6: process ac1_1(c4_6, c6_7, 6, {2, 4}, TRUE);
+        pr7: process ac1_1(c6_7, c7_17, 7, {2, 4, 6}, FALSE);
+        pr15: process ac1_1(c15_17, c15_16, 15, {2, 4, 6}, FALSE);
+        pr16: process ac1_1(c15_16, c16_2, 16, {2, 4, 6}, FALSE);
+        pr17: process ac_c(c3_17, c7_17, c15_17);
+    ASSIGN
+        init(c2_3) := 0;
+        init(c3_4) := 0;
+        init(c4_6) := 0;
+        init(c6_7) := 0;
+        init(c15_16) := 0;
+        init(c16_2) := 0;
+        init(c3_17) := 0;
+        init(c7_17) := 0;
+        init(c15_17) := 0;
+        next(c2_3) := c2_3;
+        next(c3_4) := c3_4;
+        next(c4_6) := c4_6;
+        next(c6_7) := c6_7;
+        next(c15_16) := c15_16;
+        next(c16_2) := c16_2;
+        next(c3_17) := c3_17;
+        next(c7_17) := c7_17;
+        next(c15_17) := c15_17;
+    CTLSPEC
+        AG (!(
+            -- 2
+            (c16_2 != 2 & c2_3 != 0)&
+            -- 3
+            ((c2_3 = 2 & c3_17 != 0) | ((c2_3 = 4 | c2_3 = 6) & c3_4 != 0) | ((c3_17 = 4 | c3_17 = 6) & c3_4 != 0)) &
+            -- 4
+            (c3_4 != 4 & c4_6 != 0)&
+            -- 6
+            (c4_6 != 6 & c6_7 != 0)&
+            -- 7
+            ((c6_7 != 0 & c7_17 != 0) | (c6_7 = 0 & c7_17 = 0)) &
+            -- 15
+            ((c15_17 != 0 & c15_16 != 0) | (c15_17 = 0 & c15_16 = 0)) &
+            -- 16
+            ((c15_16 != 0 & c16_2 != 0) | (c15_16 = 0 & c16_2 = 0)) &
+            -- 17
+            ((c3_17 = 2 & c15_17 != 0) | (c7_17 = 2 & c15_17 != 0) | ((c7_17 = 4 | c7_17 = 6) & c3_17 != 0))
+        ))
+    
+
+MODULE ac1_1(from, to, id, M, s)
+    FAIRNESS running
+    VAR
+        state: {send, prc};
+    ASSIGN
+        --state
+        init(state) := {send, prc};
+        next(state) := {send, prc};
+        --from
+        next(from) :=
+            case
+                (from = id) : 0;
+                (state = prc & from != 0 & to = 0 & from != id) : 0; --转发信息
+                TRUE: from;
+            esac;
+        -- to
+        next(to) :=
+            case
+                (to = 0 & s = TRUE & state = send) : M; --发送信息
+                (state = prc & from != 0 & to = 0 & from != id) : from; --转发信息
+                TRUE: to;
+            esac;
+
+
+MODULE ac1_1_T(from, to, bidirect, t1, t2, t3)
+    FAIRNESS running
+    VAR
+        -- prcfrom: from -> to, from -> bidirect
+        -- prcto: bidirect -> to
+        state: {prcfrom, prcto};
+    ASSIGN
+        init(state) := {prcfrom, prcto};
+        next(state) := {prcfrom, prcto};
+        -- from
+        next(from) :=
+            case
+                -- from -> to
+                (state = prcfrom & from != 0 & to = 0 & (from = t2 | from = t3)) : 0;
+                -- from -> bidirect
+                (state = prcfrom & from != 0 & bidirect = 0 & (from = t1)) : 0;
+                TRUE: from;
+            esac;
+        -- to
+        next(to) :=
+            case
+                -- from -> to
+                (state = prcfrom & from != 0 & to = 0 & (from = t2 | from = t3)) : from;
+                -- bidirect -> to
+                (state = prcto & bidirect != 0 & to = 0 & (bidirect = t2 | bidirect = t3)) : bidirect;
+                TRUE: to;
+            esac;
+        -- bidirect
+        next(bidirect) :=
+            case
+                -- bidirect -> to
+                (state = prcto & bidirect != 0 & to = 0 & (bidirect = t2 | bidirect = t3)) : 0;
+                -- from -> bidirect
+                (state = prcfrom & from != 0 & to = 0 & (from = t1)) : from;
+                TRUE: bidirect;
+            esac;
+
+MODULE ac_c(l1, l2, l3)
+    FAIRNESS running
+    VAR
+        --1: l2 --> l1(4, 6)
+        --2: l2 --> l3(2)
+        state: {p1, p2};
+    ASSIGN
+        init(state) := {p1, p2};
+        next(state) := {p1, p2};
+        -- l1
+        next(l1) :=
+            case
+                -- l2 -> l1
+                (state = p1 & l1 = 0 & (l2 = 4 | l2 = 6)) : l2;
+                TRUE: l1;
+            esac;
+        -- l2
+        next(l2) :=
+            case
+                -- l2 -> l1
+                (state = p1 & l1 = 0 & (l2 = 4 | l2 = 6)) : 0;
+                -- l2 -> l3
+                (state = p2 & l3 = 0 & l2 = 2) : 0;
+                TRUE: l2;
+            esac;
+        -- l3
+        next(l3) :=
+            case
+                -- l2 -> l3
+                (state = p2 & l3 = 0 & l2 = 2) : l2;
+                TRUE: l3;
+            esac;
