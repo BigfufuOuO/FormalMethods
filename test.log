@@ -1,0 +1,2053 @@
+Linear part:
+exp(exp(g1,x),y) = exp(exp(g1,y),x)
+Completing equations...
+Completed equations:
+exp(exp(g1,x),y) = exp(exp(g1,y),x)
+Convergent part: No equation.
+Process 0 (that is, the initial process):
+{1}new idUE: id;
+{2}new idAP: id;
+{3}new idAS: id;
+{4}new skUE: skey;
+{5}new skAP: skey;
+{6}new skAS: skey;
+{7}new sskAS: sskey;
+{8}new macUE: macAddress;
+{9}new macAP: macAddress;
+{10}let pkUE: pkey = pk(skUE) in
+{11}out(cNoSec, pkUE);
+{12}let pkAP: pkey = pk(skAP) in
+{13}out(cNoSec, pkAP);
+{14}let pkAS: pkey = pk(skAS) in
+{15}out(cNoSec, pkAS);
+{16}let certUE: certificate = cert(idUE,pkUE,signCert(idUE,pkUE,sskAS)) in
+{17}let certAP: certificate = cert(idAP,pkAP,signCert(idAP,pkAP,sskAS)) in
+{18}let certAS: certificate = cert(idAS,pkAS,signCert(idAS,pkAS,sskAS)) in
+(
+    {19}!
+    {20}let idUE_1: id = idUE in
+    {21}let skUE_1: skey = skUE in
+    {22}let macUE_1: macAddress = macUE in
+    {23}let macAP_1: macAddress = macAP in
+    {24}let cert(idAS_1: id,pkAS_1: pkey,AScertSignature: certSignature) = certAS in
+    {25}in(cNoSec, msg2: msg);
+    {26}let Auth1((aid: nonce,certAP_1: certificate,g: G)) = msg2 in
+    {27}event UE_AID_finish(idUE_1,aid);
+    {28}new nue: nonce;
+    {29}new x: exponent;
+    {30}let tpkUE: G = exp(g,x) in
+    {31}let cert(idAP_1: id,pkAP_1: pkey,APCertSignature: certSignature) = certAP_1 in
+    {32}let signUE: bitstring = sign((aid,idAP_1,nue,tpkUE,certUE),skUE_1) in
+    {33}out(cNoSec, Auth2((aid,idAP_1,nue,tpkUE,certUE,g,signUE)));
+    {34}in(cNoSec, msg5: msg);
+    {35}let Auth5((xidAP: id,xidUE: id,nap: nonce,xnue: nonce,tpkAP: G,xtpkUE: G,res: nat,(ADDID(macAP': macAddress,macUE': macAddress),nue': nonce,nap': nonce,resUE: nat,resAP: nat,certUE': certificate,certAP': certificate,signAS: bitstring),signAP: bitstring)) = msg5 in
+    {36}if ((xidUE = idUE_1) && ((xidAP = idAP_1) && ((xnue = nue) && (xtpkUE = tpkUE)))) then
+    {37}if (checksign((xidAP,xidUE,nap,xnue,tpkAP,xtpkUE,res,(ADDID(macAP',macUE'),nue',nap',resUE,resAP,certUE',certAP',signAS)),pkAP_1,signAP) = pass) then
+    {38}if (res = 0) then
+    {39}if (checksign((ADDID(macAP',macUE'),nue',nap',resUE,resAP,certUE',certAP'),pkAS_1,signAS) = pass) then
+    {40}if (resAP = 0) then
+    {41}let UE_BK: key = HMAC_MAC_key(exp(tpkAP,x),nue,nap) in
+    {42}let UE_AIDSeed: nonce = HMAC_MAC_nonce(exp(tpkAP,x),nue,nap) in
+    {43}let UE_newAid: nonce = hash(UE_AIDSeed) in
+    {44}event UEFinishAuthBK(idUE_1,UE_BK);
+    {45}event UEFinishAuthAID(idUE_1,UE_newAid)
+) | (
+    {46}!
+    {47}let idAP_2: id = idAP in
+    {48}let skAP_1: skey = skAP in
+    {49}let macAP_2: macAddress = macAP in
+    {50}let macUE_2: macAddress = macUE in
+    {51}new aid_1: nonce;
+    {52}new g_1: G;
+    {53}let msg1: msg = Auth1((aid_1,certAP,g_1)) in
+    {54}out(cNoSec, msg1);
+    {55}event AP_AID_finish(idAP_2,aid_1);
+    {56}in(cNoSec, msg2_1: msg);
+    {57}let Auth2((xaid: nonce,xidAP_1: id,nue_1: nonce,tpkUE_1: G,certUE_1: certificate,xg: G,signUE_1: bitstring)) = msg2_1 in
+    {58}let cert(idUE_2: id,pkUE_1: pkey,UECertSignature: certSignature) = certUE_1 in
+    {59}if ((xaid = aid_1) && ((xidAP_1 = idAP_2) && (xg = g_1))) then
+    {60}if (checksign((xaid,xidAP_1,nue_1,tpkUE_1,certUE_1,xg),pkUE_1,signUE_1) = pass) then
+    {61}new nap_1: nonce;
+    {62}let msg3: msg = Auth3((ADDID(macAP_2,macUE_2),nap_1,nue_1,certAP,certUE_1)) in
+    {63}out(cNoSec, msg3);
+    {64}in(cNoSec, msg4: msg);
+    {65}let Auth4((ADDID(macAP'_1: macAddress,macUE'_1: macAddress),nap'_1: nonce,nue'_1: nonce,resAP_1: nat,resUE_1: nat,certAP'_1: certificate,certUE'_1: certificate,signAS_1: bitstring)) = msg4 in
+    {66}let cert(idAS_2: id,pkAS_2: pkey,ASCertSignature: certSignature) = certAS in
+    {67}if (checksign((ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resAP_1,resUE_1,certAP'_1,certUE'_1),pkAS_2,signAS_1) = pass) then
+    {68}if (resUE_1 = 0) then
+    {69}new y: exponent;
+    {70}let res_1: nat = 0 in
+    {71}let tpkAP_1: G = exp(g_1,y) in
+    {72}let AP_BK: key = HMAC_MAC_key(exp(tpkUE_1,y),nue_1,nap_1) in
+    {73}let AP_AIDSeed: nonce = HMAC_MAC_nonce(exp(tpkUE_1,y),nue_1,nap_1) in
+    {74}let AP_newAid: nonce = hash(AP_AIDSeed) in
+    {75}event APFinishAuthBK(idAP_2,AP_BK);
+    {76}event APFinishAuthAID(idAP_2,AP_newAid);
+    {77}let signAP_1: bitstring = sign((idAP_2,idUE_2,nap_1,nue_1,tpkAP_1,tpkUE_1,res_1,(ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resUE_1,resAP_1,certAP'_1,certUE'_1,signAS_1)),skAP_1) in
+    {78}let msg5_1: msg = Auth5((idAP_2,idUE_2,nap_1,nue_1,tpkAP_1,tpkUE_1,res_1,(ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resAP_1,resUE_1,certAP'_1,certUE'_1,signAS_1),signAP_1)) in
+    {79}out(cNoSec, msg5_1)
+) | (
+    {80}!
+    {81}let idAS_3: id = idAS in
+    {82}let skAS_1: skey = skAS in
+    {83}let sskAS_1: sskey = sskAS in
+    {84}in(cNoSec, msg3_1: msg);
+    {85}let Auth3((ADDID(macAP_3: macAddress,macUE_3: macAddress),nap_2: nonce,nue_2: nonce,certAP_2: certificate,certUE_2: certificate)) = msg3_1 in
+    {86}if (verifyCertificate(certAP_2,spk(sskAS_1)) = pass) then
+    {87}let resAP_2: nat = 0 in
+    {88}if (verifyCertificate(certUE_2,spk(sskAS_1)) = pass) then
+    {89}let resUE_2: nat = 0 in
+    {90}if ((resAP_2 = 0) && (resUE_2 = 0)) then
+    {91}let signAS_2: bitstring = sign((ADDID(macAP_3,macUE_3),nap_2,nue_2,resAP_2,resUE_2,certAP_2,certUE_2),skAS_1) in
+    {92}let msg4_1: msg = Auth4((ADDID(macAP_3,macUE_3),nap_2,nue_2,resAP_2,resUE_2,certAP_2,certUE_2,signAS_2)) in
+    {93}out(cNoSec, msg4_1)
+)
+
+--  Process 1 (that is, process 0, encoded for secret UE_newAid, secret AP_newAid, secret UE_BK, secret AP_BK, with let moved downwards):
+{1}new idUE: id;
+{2}new idAP: id;
+{3}new idAS: id;
+{4}new skUE: skey;
+{5}new skAP: skey;
+{6}new skAS: skey;
+{7}new sskAS: sskey;
+{8}new macUE: macAddress;
+{9}new macAP: macAddress;
+{10}let pkUE: pkey = pk(skUE) in
+{11}out(cNoSec, pkUE);
+{12}let pkAP: pkey = pk(skAP) in
+{13}out(cNoSec, pkAP);
+{14}let pkAS: pkey = pk(skAS) in
+{15}out(cNoSec, pkAS);
+{18}let certAS: certificate = cert(idAS,pkAS,signCert(idAS,pkAS,sskAS)) in
+(
+    {19}!
+    {24}let cert(idAS_1: id,pkAS_1: pkey,AScertSignature: certSignature) = certAS in
+    {25}in(cNoSec, msg2: msg);
+    {26}let Auth1((aid: nonce,certAP_1: certificate,g: G)) = msg2 in
+    {20}let idUE_1: id = idUE in
+    {27}event UE_AID_finish(idUE_1,aid);
+    {28}new nue: nonce;
+    {29}new x: exponent;
+    {31}let cert(idAP_1: id,pkAP_1: pkey,APCertSignature: certSignature) = certAP_1 in
+    {30}let tpkUE: G = exp(g,x) in
+    {21}let skUE_1: skey = skUE in
+    {16}let certUE: certificate = cert(idUE,pkUE,signCert(idUE,pkUE,sskAS)) in
+    {32}let signUE: bitstring = sign((aid,idAP_1,nue,tpkUE,certUE),skUE_1) in
+    {33}out(cNoSec, Auth2((aid,idAP_1,nue,tpkUE,certUE,g,signUE)));
+    {34}in(cNoSec, msg5: msg);
+    {35}let Auth5((xidAP: id,xidUE: id,nap: nonce,xnue: nonce,tpkAP: G,xtpkUE: G,res: nat,(ADDID(macAP': macAddress,macUE': macAddress),nue': nonce,nap': nonce,resUE: nat,resAP: nat,certUE': certificate,certAP': certificate,signAS: bitstring),signAP: bitstring)) = msg5 in
+    {36}if ((xidUE = idUE_1) && ((xidAP = idAP_1) && ((xnue = nue) && (xtpkUE = tpkUE)))) then
+    {37}if (checksign((xidAP,xidUE,nap,xnue,tpkAP,xtpkUE,res,(ADDID(macAP',macUE'),nue',nap',resUE,resAP,certUE',certAP',signAS)),pkAP_1,signAP) = pass) then
+    {38}if (res = 0) then
+    {39}if (checksign((ADDID(macAP',macUE'),nue',nap',resUE,resAP,certUE',certAP'),pkAS_1,signAS) = pass) then
+    {40}if (resAP = 0) then
+    {41}let UE_BK: key = HMAC_MAC_key(exp(tpkAP,x),nue,nap) in
+    {42}event UE_BK_contains(UE_BK);
+    {43}let UE_AIDSeed: nonce = HMAC_MAC_nonce(exp(tpkAP,x),nue,nap) in
+    {44}let UE_newAid: nonce = hash(UE_AIDSeed) in
+    {45}event UE_newAid_contains(UE_newAid);
+    {46}event UEFinishAuthBK(idUE_1,UE_BK);
+    {47}event UEFinishAuthAID(idUE_1,UE_newAid)
+) | (
+    {48}!
+    {53}new aid_1: nonce;
+    {54}new g_1: G;
+    {17}let certAP: certificate = cert(idAP,pkAP,signCert(idAP,pkAP,sskAS)) in
+    {55}let msg1: msg = Auth1((aid_1,certAP,g_1)) in
+    {56}out(cNoSec, msg1);
+    {49}let idAP_2: id = idAP in
+    {57}event AP_AID_finish(idAP_2,aid_1);
+    {58}in(cNoSec, msg2_1: msg);
+    {59}let Auth2((xaid: nonce,xidAP_1: id,nue_1: nonce,tpkUE_1: G,certUE_1: certificate,xg: G,signUE_1: bitstring)) = msg2_1 in
+    {60}let cert(idUE_2: id,pkUE_1: pkey,UECertSignature: certSignature) = certUE_1 in
+    {61}if ((xaid = aid_1) && ((xidAP_1 = idAP_2) && (xg = g_1))) then
+    {62}if (checksign((xaid,xidAP_1,nue_1,tpkUE_1,certUE_1,xg),pkUE_1,signUE_1) = pass) then
+    {63}new nap_1: nonce;
+    {52}let macUE_2: macAddress = macUE in
+    {51}let macAP_2: macAddress = macAP in
+    {64}let msg3: msg = Auth3((ADDID(macAP_2,macUE_2),nap_1,nue_1,certAP,certUE_1)) in
+    {65}out(cNoSec, msg3);
+    {66}in(cNoSec, msg4: msg);
+    {67}let Auth4((ADDID(macAP'_1: macAddress,macUE'_1: macAddress),nap'_1: nonce,nue'_1: nonce,resAP_1: nat,resUE_1: nat,certAP'_1: certificate,certUE'_1: certificate,signAS_1: bitstring)) = msg4 in
+    {68}let cert(idAS_2: id,pkAS_2: pkey,ASCertSignature: certSignature) = certAS in
+    {69}if (checksign((ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resAP_1,resUE_1,certAP'_1,certUE'_1),pkAS_2,signAS_1) = pass) then
+    {70}if (resUE_1 = 0) then
+    {71}new y: exponent;
+    {74}let AP_BK: key = HMAC_MAC_key(exp(tpkUE_1,y),nue_1,nap_1) in
+    {75}event AP_BK_contains(AP_BK);
+    {76}let AP_AIDSeed: nonce = HMAC_MAC_nonce(exp(tpkUE_1,y),nue_1,nap_1) in
+    {77}let AP_newAid: nonce = hash(AP_AIDSeed) in
+    {78}event AP_newAid_contains(AP_newAid);
+    {79}event APFinishAuthBK(idAP_2,AP_BK);
+    {80}event APFinishAuthAID(idAP_2,AP_newAid);
+    {73}let tpkAP_1: G = exp(g_1,y) in
+    {72}let res_1: nat = 0 in
+    {50}let skAP_1: skey = skAP in
+    {81}let signAP_1: bitstring = sign((idAP_2,idUE_2,nap_1,nue_1,tpkAP_1,tpkUE_1,res_1,(ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resUE_1,resAP_1,certAP'_1,certUE'_1,signAS_1)),skAP_1) in
+    {82}let msg5_1: msg = Auth5((idAP_2,idUE_2,nap_1,nue_1,tpkAP_1,tpkUE_1,res_1,(ADDID(macAP'_1,macUE'_1),nap'_1,nue'_1,resAP_1,resUE_1,certAP'_1,certUE'_1,signAS_1),signAP_1)) in
+    {83}out(cNoSec, msg5_1)
+) | (
+    {84}!
+    {88}in(cNoSec, msg3_1: msg);
+    {89}let Auth3((ADDID(macAP_3: macAddress,macUE_3: macAddress),nap_2: nonce,nue_2: nonce,certAP_2: certificate,certUE_2: certificate)) = msg3_1 in
+    {87}let sskAS_1: sskey = sskAS in
+    {90}if (verifyCertificate(certAP_2,spk(sskAS_1)) = pass) then
+    {92}if (verifyCertificate(certUE_2,spk(sskAS_1)) = pass) then
+    {93}let resUE_2: nat = 0 in
+    {91}let resAP_2: nat = 0 in
+    {94}if ((resAP_2 = 0) && (resUE_2 = 0)) then
+    {86}let skAS_1: skey = skAS in
+    {95}let signAS_2: bitstring = sign((ADDID(macAP_3,macUE_3),nap_2,nue_2,resAP_2,resUE_2,certAP_2,certUE_2),skAS_1) in
+    {96}let msg4_1: msg = Auth4((ADDID(macAP_3,macUE_3),nap_2,nue_2,resAP_2,resUE_2,certAP_2,certUE_2,signAS_2)) in
+    {97}out(cNoSec, msg4_1)
+)
+
+-- Query inj-event(APSendAID(idUE_3,AID)) ==> inj-event(UESendAID(idAP_3)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 129 rules (59 with conclusion selected). Queue: 8 rules.
+Starting query inj-event(APSendAID(idUE_3,AID)) ==> inj-event(UESendAID(idAP_3))
+RESULT inj-event(APSendAID(idUE_3,AID)) ==> inj-event(UESendAID(idAP_3)) is true.
+-- Query inj-event(UEFinishAuthBK(idUE_3,BK)) ==> inj-event(APFinishAuthBK(idAP_3,BK)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 152 rules (56 with conclusion selected). Queue: 21 rules.
+400 rules inserted. Base: 179 rules (59 with conclusion selected). Queue: 56 rules.
+600 rules inserted. Base: 213 rules (89 with conclusion selected). Queue: 35 rules.
+800 rules inserted. Base: 255 rules (127 with conclusion selected). Queue: 8 rules.
+Starting query inj-event(UEFinishAuthBK(idUE_3,BK)) ==> inj-event(APFinishAuthBK(idAP_3,BK))
+goal reachable: attacker(nap_3) && attacker(tpkAP_2) && attacker(macAP'_2) && attacker(macUE'_2) && attacker(nue'_2) && attacker(nap'_2) && attacker(aid_2) && attacker(xidAP_2) && attacker(k) && attacker(APCertSignature_1) && attacker(g_2) -> inj-event(UEFinishAuthBK(idUE[],HMAC_MAC_key(exp(tpkAP_2,x_1),nue_3,nap_3)),@occ46_1)
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+@occ46_1 = @occ46[msg5 = Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))),msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+
+Derivation:
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+@occ46_1 = @occ46[msg5 = Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))),msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_4 = nue[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+x_2 = x[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(g_2).
+
+2. We assume as hypothesis that
+attacker(APCertSignature_1).
+
+3. We assume as hypothesis that
+attacker(k).
+
+4. By 3, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+5. We assume as hypothesis that
+attacker(xidAP_2).
+
+6. By 5, the attacker may know xidAP_2.
+By 4, the attacker may know pk(k).
+By 2, the attacker may know APCertSignature_1.
+Using the function cert the attacker may obtain cert(xidAP_2,pk(k),APCertSignature_1).
+attacker(cert(xidAP_2,pk(k),APCertSignature_1)).
+
+7. We assume as hypothesis that
+attacker(aid_2).
+
+8. By 7, the attacker may know aid_2.
+By 6, the attacker may know cert(xidAP_2,pk(k),APCertSignature_1).
+By 1, the attacker may know g_2.
+Using the function 3-tuple the attacker may obtain (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+attacker((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+
+9. By 8, the attacker may know (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+Using the function Auth1 the attacker may obtain Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+attacker(Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2))).
+
+10. The attacker has some term g_3.
+attacker(g_3).
+
+11. The attacker has some term APCertSignature_2.
+attacker(APCertSignature_2).
+
+12. The attacker has some term pkAP_2.
+attacker(pkAP_2).
+
+13. The attacker has some term idAP_3.
+attacker(idAP_3).
+
+14. By 13, the attacker may know idAP_3.
+By 12, the attacker may know pkAP_2.
+By 11, the attacker may know APCertSignature_2.
+Using the function cert the attacker may obtain cert(idAP_3,pkAP_2,APCertSignature_2).
+attacker(cert(idAP_3,pkAP_2,APCertSignature_2)).
+
+15. The attacker has some term aid_3.
+attacker(aid_3).
+
+16. By 15, the attacker may know aid_3.
+By 14, the attacker may know cert(idAP_3,pkAP_2,APCertSignature_2).
+By 10, the attacker may know g_3.
+Using the function 3-tuple the attacker may obtain (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+attacker((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+
+17. By 16, the attacker may know (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+Using the function Auth1 the attacker may obtain Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+attacker(Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3))).
+
+18. The message Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)) that the attacker may have by 17 may be received at input {25}.
+So the message Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+19. By 18, the attacker may know Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+20. By 19, the attacker may know (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 5-proj-7-tuple the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+21. By 20, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 3-proj-cert the attacker may obtain signCert(idUE[],pk(skUE[]),sskAS[]).
+attacker(signCert(idUE[],pk(skUE[]),sskAS[])).
+
+22. The message pk(skUE[]) may be sent to the attacker at output {11}.
+attacker(pk(skUE[])).
+
+23. By 20, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idUE[].
+attacker(idUE[]).
+
+24. By 23, the attacker may know idUE[].
+By 22, the attacker may know pk(skUE[]).
+By 21, the attacker may know signCert(idUE[],pk(skUE[]),sskAS[]).
+Using the function cert the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+25. We assume as hypothesis that
+attacker(nap'_2).
+
+26. We assume as hypothesis that
+attacker(nue'_2).
+
+27. We assume as hypothesis that
+attacker(macUE'_2).
+
+28. We assume as hypothesis that
+attacker(macAP'_2).
+
+29. By 28, the attacker may know macAP'_2.
+By 27, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+30. By 29, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 26, the attacker may know nue'_2.
+By 25, the attacker may know nap'_2.
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+
+31. By 30, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))))).
+
+32. The message Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))) that the attacker may have by 31 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+33. By 32, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+34. By 33, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+
+35. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+36. By 29, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 26, the attacker may know nue'_2.
+By 25, the attacker may know nap'_2.
+By 35, the attacker may know 0.
+By 35, the attacker may know 0.
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 34, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+37. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 9 may be received at input {25}.
+So the message Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+38. By 37, the attacker may know Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+39. By 38, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 4-proj-7-tuple the attacker may obtain exp(g_2,x_1).
+attacker(exp(g_2,x_1)).
+
+40. We assume as hypothesis that
+attacker(tpkAP_2).
+
+41. By 38, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 3-proj-7-tuple the attacker may obtain nue_3.
+attacker(nue_3).
+
+42. We assume as hypothesis that
+attacker(nap_3).
+
+43. By 5, the attacker may know xidAP_2.
+By 23, the attacker may know idUE[].
+By 42, the attacker may know nap_3.
+By 41, the attacker may know nue_3.
+By 40, the attacker may know tpkAP_2.
+By 39, the attacker may know exp(g_2,x_1).
+By 35, the attacker may know 0.
+By 36, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+attacker((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+44. By 43, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+By 3, the attacker may know k.
+Using the function sign the attacker may obtain sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+attacker(sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+
+45. By 5, the attacker may know xidAP_2.
+By 23, the attacker may know idUE[].
+By 42, the attacker may know nap_3.
+By 41, the attacker may know nue_3.
+By 40, the attacker may know tpkAP_2.
+By 39, the attacker may know exp(g_2,x_1).
+By 35, the attacker may know 0.
+By 36, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+By 44, the attacker may know sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+Using the function 9-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+attacker((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+
+46. By 45, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+Using the function Auth5 the attacker may obtain Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+attacker(Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)))).
+
+47. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 9 may be received at input {25}.
+The message Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))) that the attacker may have by 46 may be received at input {34}.
+So event UEFinishAuthBK(idUE[],HMAC_MAC_key(exp(tpkAP_2,x_1),nue_3,nap_3)) may be executed at {46} in session @sid.
+inj-event(UEFinishAuthBK(idUE[],HMAC_MAC_key(exp(tpkAP_2,x_1),nue_3,nap_3)),@occ46_1).
+
+48. By 47, inj-event(UEFinishAuthBK(idUE[],HMAC_MAC_key(exp(tpkAP_2,x_1),nue_3,nap_3)),@occ46_1).
+The goal is reached, represented in the following fact:
+inj-event(UEFinishAuthBK(idUE[],HMAC_MAC_key(exp(tpkAP_2,x_1),nue_3,nap_3)),@occ46_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_3 at {1}
+
+new idAP: id creating idAP_4 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+in(cNoSec, Auth1((a,cert(a_1,a_2,a_3),a_4))) at {25} in copy a_5
+
+event UE_AID_finish(idUE_3,a) at {27} in copy a_5
+
+new nue: nonce creating nue_5 at {28} in copy a_5
+
+new x: exponent creating x_3 at {29} in copy a_5
+
+out(cNoSec, Auth2((~M_3,~M_4,~M_5,~M_6,cert(~M_7,~M_8,~M_9),~M_10,~M_11))) with ~M_3 = a, ~M_4 = a_1, ~M_5 = nue_5, ~M_6 = exp(a_4,x_3), ~M_7 = idUE_3, ~M_8 = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_10 = a_4, ~M_11 = sign((a,a_1,nue_5,exp(a_4,x_3),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_5
+
+in(cNoSec, Auth1((a_6,cert(a_7,pk(a_8),a_9),a_10))) at {25} in copy a_11
+
+event UE_AID_finish(idUE_3,a_6) at {27} in copy a_11
+
+new nue: nonce creating nue_6 at {28} in copy a_11
+
+new x: exponent creating x_4 at {29} in copy a_11
+
+out(cNoSec, Auth2((~M_12,~M_13,~M_14,~M_15,cert(~M_16,~M_17,~M_18),~M_19,~M_20))) with ~M_12 = a_6, ~M_13 = a_7, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_16 = idUE_3, ~M_17 = pk(skUE_2), ~M_18 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_19 = a_10, ~M_20 = sign((a_6,a_7,nue_6,exp(a_10,x_4),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_11
+
+in(cNoSec, Auth3((ADDID(a_12,a_13),a_14,a_15,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9)))) with ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2) at {88} in copy a_16
+
+out(cNoSec, Auth4((ADDID(~M_21,~M_22),~M_23,~M_24,0,0,cert(~M_25,~M_26,~M_27),cert(~M_28,~M_29,~M_30),~M_31))) with ~M_21 = a_12, ~M_22 = a_13, ~M_23 = a_14, ~M_24 = a_15, ~M_25 = idUE_3, ~M_26 = pk(skUE_2), ~M_27 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_28 = idUE_3, ~M_29 = pk(skUE_2), ~M_30 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2) at {97} in copy a_16
+
+in(cNoSec, Auth5((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31),sign((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8)))) with ~M_7 = idUE_3, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2), sign((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8) = sign((a_7,idUE_3,a_17,nue_6,a_18,exp(a_10,x_4),0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2))),a_8) at {34} in copy a_11
+
+event UE_BK_contains(HMAC_MAC_key(exp(a_18,x_4),nue_6,a_17)) at {42} in copy a_11
+
+event UE_newAid_contains(hash(HMAC_MAC_nonce(exp(a_18,x_4),nue_6,a_17))) at {45} in copy a_11
+
+event UEFinishAuthBK(idUE_3,HMAC_MAC_key(exp(a_18,x_4),nue_6,a_17)) at {46} in copy a_11 (goal)
+
+The event UEFinishAuthBK(idUE_3,HMAC_MAC_key(exp(a_18,x_4),nue_6,a_17)) is executed at {46} in copy a_11.
+A trace has been found.
+RESULT inj-event(UEFinishAuthBK(idUE_3,BK)) ==> inj-event(APFinishAuthBK(idAP_3,BK)) is false.
+RESULT (even event(UEFinishAuthBK(idUE_3,BK)) ==> event(APFinishAuthBK(idAP_3,BK)) is false.)
+-- Query inj-event(UEFinishAuthAID(idUE_3,AID)) ==> inj-event(APFinishAuthAID(idAP_3,AID)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 152 rules (56 with conclusion selected). Queue: 21 rules.
+400 rules inserted. Base: 179 rules (59 with conclusion selected). Queue: 56 rules.
+600 rules inserted. Base: 213 rules (89 with conclusion selected). Queue: 35 rules.
+800 rules inserted. Base: 255 rules (127 with conclusion selected). Queue: 8 rules.
+Starting query inj-event(UEFinishAuthAID(idUE_3,AID)) ==> inj-event(APFinishAuthAID(idAP_3,AID))
+goal reachable: attacker(nap_3) && attacker(tpkAP_2) && attacker(macAP'_2) && attacker(macUE'_2) && attacker(nue'_2) && attacker(nap'_2) && attacker(aid_2) && attacker(xidAP_2) && attacker(k) && attacker(APCertSignature_1) && attacker(g_2) -> inj-event(UEFinishAuthAID(idUE[],hash(HMAC_MAC_nonce(exp(tpkAP_2,x_1),nue_3,nap_3))),@occ47_1)
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+@occ47_1 = @occ47[msg5 = Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))),msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+
+Derivation:
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+@occ47_1 = @occ47[msg5 = Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))),msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_4 = nue[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+x_2 = x[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(g_2).
+
+2. We assume as hypothesis that
+attacker(APCertSignature_1).
+
+3. We assume as hypothesis that
+attacker(k).
+
+4. By 3, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+5. We assume as hypothesis that
+attacker(xidAP_2).
+
+6. By 5, the attacker may know xidAP_2.
+By 4, the attacker may know pk(k).
+By 2, the attacker may know APCertSignature_1.
+Using the function cert the attacker may obtain cert(xidAP_2,pk(k),APCertSignature_1).
+attacker(cert(xidAP_2,pk(k),APCertSignature_1)).
+
+7. We assume as hypothesis that
+attacker(aid_2).
+
+8. By 7, the attacker may know aid_2.
+By 6, the attacker may know cert(xidAP_2,pk(k),APCertSignature_1).
+By 1, the attacker may know g_2.
+Using the function 3-tuple the attacker may obtain (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+attacker((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+
+9. By 8, the attacker may know (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+Using the function Auth1 the attacker may obtain Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+attacker(Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2))).
+
+10. The attacker has some term g_3.
+attacker(g_3).
+
+11. The attacker has some term APCertSignature_2.
+attacker(APCertSignature_2).
+
+12. The attacker has some term pkAP_2.
+attacker(pkAP_2).
+
+13. The attacker has some term idAP_3.
+attacker(idAP_3).
+
+14. By 13, the attacker may know idAP_3.
+By 12, the attacker may know pkAP_2.
+By 11, the attacker may know APCertSignature_2.
+Using the function cert the attacker may obtain cert(idAP_3,pkAP_2,APCertSignature_2).
+attacker(cert(idAP_3,pkAP_2,APCertSignature_2)).
+
+15. The attacker has some term aid_3.
+attacker(aid_3).
+
+16. By 15, the attacker may know aid_3.
+By 14, the attacker may know cert(idAP_3,pkAP_2,APCertSignature_2).
+By 10, the attacker may know g_3.
+Using the function 3-tuple the attacker may obtain (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+attacker((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+
+17. By 16, the attacker may know (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+Using the function Auth1 the attacker may obtain Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+attacker(Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3))).
+
+18. The message Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)) that the attacker may have by 17 may be received at input {25}.
+So the message Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+19. By 18, the attacker may know Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+20. By 19, the attacker may know (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 5-proj-7-tuple the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+21. By 20, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 3-proj-cert the attacker may obtain signCert(idUE[],pk(skUE[]),sskAS[]).
+attacker(signCert(idUE[],pk(skUE[]),sskAS[])).
+
+22. The message pk(skUE[]) may be sent to the attacker at output {11}.
+attacker(pk(skUE[])).
+
+23. By 20, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idUE[].
+attacker(idUE[]).
+
+24. By 23, the attacker may know idUE[].
+By 22, the attacker may know pk(skUE[]).
+By 21, the attacker may know signCert(idUE[],pk(skUE[]),sskAS[]).
+Using the function cert the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+25. We assume as hypothesis that
+attacker(nap'_2).
+
+26. We assume as hypothesis that
+attacker(nue'_2).
+
+27. We assume as hypothesis that
+attacker(macUE'_2).
+
+28. We assume as hypothesis that
+attacker(macAP'_2).
+
+29. By 28, the attacker may know macAP'_2.
+By 27, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+30. By 29, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 26, the attacker may know nue'_2.
+By 25, the attacker may know nap'_2.
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+
+31. By 30, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))))).
+
+32. The message Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))) that the attacker may have by 31 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+33. By 32, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+34. By 33, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+
+35. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+36. By 29, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 26, the attacker may know nue'_2.
+By 25, the attacker may know nap'_2.
+By 35, the attacker may know 0.
+By 35, the attacker may know 0.
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 24, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 34, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+37. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 9 may be received at input {25}.
+So the message Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+38. By 37, the attacker may know Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+39. By 38, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 4-proj-7-tuple the attacker may obtain exp(g_2,x_1).
+attacker(exp(g_2,x_1)).
+
+40. We assume as hypothesis that
+attacker(tpkAP_2).
+
+41. By 38, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 3-proj-7-tuple the attacker may obtain nue_3.
+attacker(nue_3).
+
+42. We assume as hypothesis that
+attacker(nap_3).
+
+43. By 5, the attacker may know xidAP_2.
+By 23, the attacker may know idUE[].
+By 42, the attacker may know nap_3.
+By 41, the attacker may know nue_3.
+By 40, the attacker may know tpkAP_2.
+By 39, the attacker may know exp(g_2,x_1).
+By 35, the attacker may know 0.
+By 36, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+attacker((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+44. By 43, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+By 3, the attacker may know k.
+Using the function sign the attacker may obtain sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+attacker(sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+
+45. By 5, the attacker may know xidAP_2.
+By 23, the attacker may know idUE[].
+By 42, the attacker may know nap_3.
+By 41, the attacker may know nue_3.
+By 40, the attacker may know tpkAP_2.
+By 39, the attacker may know exp(g_2,x_1).
+By 35, the attacker may know 0.
+By 36, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+By 44, the attacker may know sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+Using the function 9-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+attacker((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+
+46. By 45, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+Using the function Auth5 the attacker may obtain Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+attacker(Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)))).
+
+47. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 9 may be received at input {25}.
+The message Auth5((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,tpkAP_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))) that the attacker may have by 46 may be received at input {34}.
+So event UEFinishAuthAID(idUE[],hash(HMAC_MAC_nonce(exp(tpkAP_2,x_1),nue_3,nap_3))) may be executed at {47} in session @sid.
+inj-event(UEFinishAuthAID(idUE[],hash(HMAC_MAC_nonce(exp(tpkAP_2,x_1),nue_3,nap_3))),@occ47_1).
+
+48. By 47, inj-event(UEFinishAuthAID(idUE[],hash(HMAC_MAC_nonce(exp(tpkAP_2,x_1),nue_3,nap_3))),@occ47_1).
+The goal is reached, represented in the following fact:
+inj-event(UEFinishAuthAID(idUE[],hash(HMAC_MAC_nonce(exp(tpkAP_2,x_1),nue_3,nap_3))),@occ47_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_3 at {1}
+
+new idAP: id creating idAP_4 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+in(cNoSec, Auth1((a,cert(a_1,a_2,a_3),a_4))) at {25} in copy a_5
+
+event UE_AID_finish(idUE_3,a) at {27} in copy a_5
+
+new nue: nonce creating nue_5 at {28} in copy a_5
+
+new x: exponent creating x_3 at {29} in copy a_5
+
+out(cNoSec, Auth2((~M_3,~M_4,~M_5,~M_6,cert(~M_7,~M_8,~M_9),~M_10,~M_11))) with ~M_3 = a, ~M_4 = a_1, ~M_5 = nue_5, ~M_6 = exp(a_4,x_3), ~M_7 = idUE_3, ~M_8 = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_10 = a_4, ~M_11 = sign((a,a_1,nue_5,exp(a_4,x_3),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_5
+
+in(cNoSec, Auth1((a_6,cert(a_7,pk(a_8),a_9),a_10))) at {25} in copy a_11
+
+event UE_AID_finish(idUE_3,a_6) at {27} in copy a_11
+
+new nue: nonce creating nue_6 at {28} in copy a_11
+
+new x: exponent creating x_4 at {29} in copy a_11
+
+out(cNoSec, Auth2((~M_12,~M_13,~M_14,~M_15,cert(~M_16,~M_17,~M_18),~M_19,~M_20))) with ~M_12 = a_6, ~M_13 = a_7, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_16 = idUE_3, ~M_17 = pk(skUE_2), ~M_18 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_19 = a_10, ~M_20 = sign((a_6,a_7,nue_6,exp(a_10,x_4),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_11
+
+in(cNoSec, Auth3((ADDID(a_12,a_13),a_14,a_15,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9)))) with ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2) at {88} in copy a_16
+
+out(cNoSec, Auth4((ADDID(~M_21,~M_22),~M_23,~M_24,0,0,cert(~M_25,~M_26,~M_27),cert(~M_28,~M_29,~M_30),~M_31))) with ~M_21 = a_12, ~M_22 = a_13, ~M_23 = a_14, ~M_24 = a_15, ~M_25 = idUE_3, ~M_26 = pk(skUE_2), ~M_27 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_28 = idUE_3, ~M_29 = pk(skUE_2), ~M_30 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2) at {97} in copy a_16
+
+in(cNoSec, Auth5((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31),sign((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8)))) with ~M_7 = idUE_3, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2), sign((a_7,~M_7,a_17,~M_14,a_18,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8) = sign((a_7,idUE_3,a_17,nue_6,a_18,exp(a_10,x_4),0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2))),a_8) at {34} in copy a_11
+
+event UE_BK_contains(HMAC_MAC_key(exp(a_18,x_4),nue_6,a_17)) at {42} in copy a_11
+
+event UE_newAid_contains(hash(HMAC_MAC_nonce(exp(a_18,x_4),nue_6,a_17))) at {45} in copy a_11
+
+event UEFinishAuthBK(idUE_3,HMAC_MAC_key(exp(a_18,x_4),nue_6,a_17)) at {46} in copy a_11
+
+event UEFinishAuthAID(idUE_3,hash(HMAC_MAC_nonce(exp(a_18,x_4),nue_6,a_17))) at {47} in copy a_11 (goal)
+
+The event UEFinishAuthAID(idUE_3,hash(HMAC_MAC_nonce(exp(a_18,x_4),nue_6,a_17))) is executed at {47} in copy a_11.
+A trace has been found.
+RESULT inj-event(UEFinishAuthAID(idUE_3,AID)) ==> inj-event(APFinishAuthAID(idAP_3,AID)) is false.
+RESULT (even event(UEFinishAuthAID(idUE_3,AID)) ==> event(APFinishAuthAID(idAP_3,AID)) is false.)
+-- Query inj-event(UE_AID_finish(idUE_3,aid_2)) ==> inj-event(AP_AID_finish(idAP_3,aid_2)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 132 rules (60 with conclusion selected). Queue: 8 rules.
+Starting query inj-event(UE_AID_finish(idUE_3,aid_2)) ==> inj-event(AP_AID_finish(idAP_3,aid_2))
+goal reachable: attacker(aid_2) && attacker(certAP_3) && attacker(g_2) -> inj-event(UE_AID_finish(idUE[],aid_2),@occ27_1)
+Abbreviations:
+@occ27_1 = @occ27[msg2 = Auth1((aid_2,certAP_3,g_2)),!1 = @sid]
+
+Derivation:
+Abbreviations:
+@occ27_1 = @occ27[msg2 = Auth1((aid_2,certAP_3,g_2)),!1 = @sid]
+
+1. We assume as hypothesis that
+attacker(g_2).
+
+2. We assume as hypothesis that
+attacker(certAP_3).
+
+3. We assume as hypothesis that
+attacker(aid_2).
+
+4. By 3, the attacker may know aid_2.
+By 2, the attacker may know certAP_3.
+By 1, the attacker may know g_2.
+Using the function 3-tuple the attacker may obtain (aid_2,certAP_3,g_2).
+attacker((aid_2,certAP_3,g_2)).
+
+5. By 4, the attacker may know (aid_2,certAP_3,g_2).
+Using the function Auth1 the attacker may obtain Auth1((aid_2,certAP_3,g_2)).
+attacker(Auth1((aid_2,certAP_3,g_2))).
+
+6. The message Auth1((aid_2,certAP_3,g_2)) that the attacker may have by 5 may be received at input {25}.
+So event UE_AID_finish(idUE[],aid_2) may be executed at {27} in session @sid.
+inj-event(UE_AID_finish(idUE[],aid_2),@occ27_1).
+
+7. By 6, inj-event(UE_AID_finish(idUE[],aid_2),@occ27_1).
+The goal is reached, represented in the following fact:
+inj-event(UE_AID_finish(idUE[],aid_2),@occ27_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_3 at {1}
+
+new idAP: id creating idAP_3 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+in(cNoSec, Auth1((a,a_1,a_2))) at {25} in copy a_3
+
+event UE_AID_finish(idUE_3,a) at {27} in copy a_3 (goal)
+
+The event UE_AID_finish(idUE_3,a) is executed at {27} in copy a_3.
+A trace has been found.
+RESULT inj-event(UE_AID_finish(idUE_3,aid_2)) ==> inj-event(AP_AID_finish(idAP_3,aid_2)) is false.
+RESULT (even event(UE_AID_finish(idUE_3,aid_2)) ==> event(AP_AID_finish(idAP_3,aid_2)) is false.)
+-- Query secret AP_BK encoded as not (event(AP_BK_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 138 rules (59 with conclusion selected). Queue: 17 rules.
+Starting query secret AP_BK
+goal reachable: attacker(macAP'_2) && attacker(macUE'_2) && attacker(nap'_2) && attacker(nue'_2) && attacker(nue_3) && attacker(idUE_3) && attacker(UECertSignature_1) && attacker(k) -> event(AP_BK_contains(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3))) && attacker(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3))
+Abbreviations:
+g_2 = g_1[!1 = @sid]
+aid_2 = aid_1[!1 = @sid]
+y_1 = y[msg4 = Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+nap_3 = nap_1[msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+
+Derivation:
+Abbreviations:
+g_2 = g_1[!1 = @sid]
+aid_2 = aid_1[!1 = @sid]
+y_1 = y[msg4 = Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+nap_3 = nap_1[msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+aid_3 = aid_1[!1 = @sid_1]
+g_3 = g_1[!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(k).
+
+2. The message Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)) may be sent to the attacker at output {56}.
+attacker(Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2))).
+
+3. By 2, the attacker may know Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)).
+Using the function 1-proj-Auth1 the attacker may obtain (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+attacker((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)).
+
+4. By 3, the attacker may know (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+Using the function 3-proj-3-tuple the attacker may obtain g_2.
+attacker(g_2).
+
+5. We assume as hypothesis that
+attacker(UECertSignature_1).
+
+6. By 1, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+7. We assume as hypothesis that
+attacker(idUE_3).
+
+8. By 7, the attacker may know idUE_3.
+By 6, the attacker may know pk(k).
+By 5, the attacker may know UECertSignature_1.
+Using the function cert the attacker may obtain cert(idUE_3,pk(k),UECertSignature_1).
+attacker(cert(idUE_3,pk(k),UECertSignature_1)).
+
+9. We assume as hypothesis that
+attacker(nue_3).
+
+10. The message Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)) may be sent to the attacker at output {56}.
+attacker(Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3))).
+
+11. By 10, the attacker may know Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)).
+Using the function 1-proj-Auth1 the attacker may obtain (aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3).
+attacker((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)).
+
+12. By 11, the attacker may know (aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3).
+Using the function 2-proj-3-tuple the attacker may obtain cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+attacker(cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+
+13. By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idAP[].
+attacker(idAP[]).
+
+14. By 3, the attacker may know (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+Using the function 1-proj-3-tuple the attacker may obtain aid_2.
+attacker(aid_2).
+
+15. By 14, the attacker may know aid_2.
+By 13, the attacker may know idAP[].
+By 9, the attacker may know nue_3.
+By 4, the attacker may know g_2.
+By 8, the attacker may know cert(idUE_3,pk(k),UECertSignature_1).
+By 4, the attacker may know g_2.
+Using the function 6-tuple the attacker may obtain (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2).
+attacker((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2)).
+
+16. By 15, the attacker may know (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2).
+By 1, the attacker may know k.
+Using the function sign the attacker may obtain sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k).
+attacker(sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+
+17. By 14, the attacker may know aid_2.
+By 13, the attacker may know idAP[].
+By 9, the attacker may know nue_3.
+By 4, the attacker may know g_2.
+By 8, the attacker may know cert(idUE_3,pk(k),UECertSignature_1).
+By 4, the attacker may know g_2.
+By 16, the attacker may know sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k).
+Using the function 7-tuple the attacker may obtain (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+attacker((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))).
+
+18. By 17, the attacker may know (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+Using the function Auth2 the attacker may obtain Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))).
+attacker(Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)))).
+
+19. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+So the message Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))) may be sent to the attacker at output {65}.
+attacker(Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)))).
+
+20. By 19, the attacker may know Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))).
+Using the function 1-proj-Auth3 the attacker may obtain (ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)).
+attacker((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))).
+
+21. By 20, the attacker may know (ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)).
+Using the function 2-proj-5-tuple the attacker may obtain nap_3.
+attacker(nap_3).
+
+22. We assume as hypothesis that
+attacker(nue'_2).
+
+23. We assume as hypothesis that
+attacker(nap'_2).
+
+24. We assume as hypothesis that
+attacker(macUE'_2).
+
+25. We assume as hypothesis that
+attacker(macAP'_2).
+
+26. By 25, the attacker may know macAP'_2.
+By 24, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+27. By 26, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 23, the attacker may know nap'_2.
+By 22, the attacker may know nue'_2.
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))).
+
+28. By 27, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))))).
+
+29. The message Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))) that the attacker may have by 28 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])))).
+
+30. By 29, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+
+31. By 30, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+
+32. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+33. By 26, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 23, the attacker may know nap'_2.
+By 22, the attacker may know nue'_2.
+By 32, the attacker may know 0.
+By 32, the attacker may know 0.
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 31, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+
+34. By 33, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+Using the function Auth4 the attacker may obtain Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])))).
+
+35. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+The message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) that the attacker may have by 34 may be received at input {66}.
+So the message Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))) may be sent to the attacker at output {83}.
+attacker(Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])))).
+
+36. By 35, the attacker may know Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))).
+Using the function 1-proj-Auth5 the attacker may obtain (idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])).
+attacker((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))).
+
+37. By 36, the attacker may know (idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])).
+Using the function 5-proj-9-tuple the attacker may obtain exp(g_2,y_1).
+attacker(exp(g_2,y_1)).
+
+38. By 37, the attacker may know exp(g_2,y_1).
+By 9, the attacker may know nue_3.
+By 21, the attacker may know nap_3.
+Using the function HMAC_MAC_key the attacker may obtain HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3).
+attacker(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3)).
+
+39. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+The message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) that the attacker may have by 34 may be received at input {66}.
+So event AP_BK_contains(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3)) may be executed at {75}.
+event(AP_BK_contains(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3))).
+
+40. By 39, event(AP_BK_contains(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3))).
+By 38, attacker(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3)).
+The goals are reached, combined in the following fact:
+event(AP_BK_contains(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3))) && attacker(HMAC_MAC_key(exp(g_2,y_1),nue_3,nap_3)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_4 at {1}
+
+new idAP: id creating idAP_3 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+new aid_1: nonce creating aid_4 at {53} in copy a
+
+new g_1: G creating g_4 at {54} in copy a
+
+out(cNoSec, Auth1((~M_3,cert(~M_4,~M_5,~M_6),~M_7))) with ~M_3 = aid_4, ~M_4 = idAP_3, ~M_5 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_7 = g_4 at {56} in copy a
+
+event AP_AID_finish(idAP_3,aid_4) at {57} in copy a
+
+new aid_1: nonce creating aid_5 at {53} in copy a_1
+
+new g_1: G creating g_5 at {54} in copy a_1
+
+out(cNoSec, Auth1((~M_8,cert(~M_9,~M_10,~M_11),~M_12))) with ~M_8 = aid_5, ~M_9 = idAP_3, ~M_10 = pk(skAP_2), ~M_11 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_12 = g_5 at {56} in copy a_1
+
+event AP_AID_finish(idAP_3,aid_5) at {57} in copy a_1
+
+in(cNoSec, Auth2((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7,sign((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7),a_4)))) with ~M_3 = aid_4, ~M_4 = idAP_3, ~M_7 = g_4, ~M_7 = g_4, sign((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7),a_4) = sign((aid_4,idAP_3,a_2,g_4,cert(a_3,pk(a_4),a_5),g_4),a_4) at {58} in copy a
+
+new nap_1: nonce creating nap_4 at {63} in copy a
+
+out(cNoSec, Auth3((ADDID(~M_13,~M_14),~M_15,~M_16,cert(~M_17,~M_18,~M_19),cert(~M_20,~M_21,~M_22)))) with ~M_13 = macAP_4, ~M_14 = macUE_4, ~M_15 = nap_4, ~M_16 = a_2, ~M_17 = idAP_3, ~M_18 = pk(skAP_2), ~M_19 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_20 = a_3, ~M_21 = pk(a_4), ~M_22 = a_5 at {65} in copy a
+
+in(cNoSec, Auth3((ADDID(a_6,a_7),a_8,a_9,cert(~M_4,~M_1,~M_6),cert(~M_4,~M_1,~M_6)))) with ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2) at {88} in copy a_10
+
+out(cNoSec, Auth4((ADDID(~M_23,~M_24),~M_25,~M_26,0,0,cert(~M_27,~M_28,~M_29),cert(~M_30,~M_31,~M_32),~M_33))) with ~M_23 = a_6, ~M_24 = a_7, ~M_25 = a_8, ~M_26 = a_9, ~M_27 = idAP_3, ~M_28 = pk(skAP_2), ~M_29 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_30 = idAP_3, ~M_31 = pk(skAP_2), ~M_32 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_33 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2) at {97} in copy a_10
+
+in(cNoSec, Auth4((ADDID(a_6,a_7),a_8,a_9,0,0,cert(~M_4,~M_1,~M_6),cert(~M_4,~M_1,~M_6),~M_33))) with ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_33 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2) at {66} in copy a
+
+new y: exponent creating y_2 at {71} in copy a
+
+event AP_BK_contains(HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4)) at {75} in copy a (goal)
+
+event AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4))) at {78} in copy a
+
+event APFinishAuthBK(idAP_3,HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4)) at {79} in copy a
+
+event APFinishAuthAID(idAP_3,hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4))) at {80} in copy a
+
+out(cNoSec, Auth5((~M_34,~M_35,~M_36,~M_37,~M_38,~M_39,0,(ADDID(~M_40,~M_41),~M_42,~M_43,0,0,cert(~M_44,~M_45,~M_46),cert(~M_47,~M_48,~M_49),~M_50),~M_51))) with ~M_34 = idAP_3, ~M_35 = a_3, ~M_36 = nap_4, ~M_37 = a_2, ~M_38 = exp(g_4,y_2), ~M_39 = g_4, ~M_40 = a_6, ~M_41 = a_7, ~M_42 = a_8, ~M_43 = a_9, ~M_44 = idAP_3, ~M_45 = pk(skAP_2), ~M_46 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_47 = idAP_3, ~M_48 = pk(skAP_2), ~M_49 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_50 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2), ~M_51 = sign((idAP_3,a_3,nap_4,a_2,exp(g_4,y_2),g_4,0,(ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2))),skAP_2) at {83} in copy a
+
+The event AP_BK_contains(HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4)) is executed at {75} in copy a.
+The attacker has the message HMAC_MAC_key(~M_38,a_2,~M_15) = HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4).
+A trace has been found.
+RESULT secret AP_BK is false.
+-- Query secret UE_BK encoded as not (event(UE_BK_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 140 rules (59 with conclusion selected). Queue: 13 rules.
+Starting query secret UE_BK
+goal reachable: attacker(aid_2) && attacker(xidAP_2) && attacker(k) && attacker(APCertSignature_1) && attacker(g_2) && attacker(nap_3) -> event(UE_BK_contains(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3))) && attacker(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3))
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+
+Derivation:
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_4 = nue[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+x_2 = x[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(nap_3).
+
+2. We assume as hypothesis that
+attacker(g_2).
+
+3. We assume as hypothesis that
+attacker(APCertSignature_1).
+
+4. We assume as hypothesis that
+attacker(k).
+
+5. By 4, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+6. We assume as hypothesis that
+attacker(xidAP_2).
+
+7. By 6, the attacker may know xidAP_2.
+By 5, the attacker may know pk(k).
+By 3, the attacker may know APCertSignature_1.
+Using the function cert the attacker may obtain cert(xidAP_2,pk(k),APCertSignature_1).
+attacker(cert(xidAP_2,pk(k),APCertSignature_1)).
+
+8. We assume as hypothesis that
+attacker(aid_2).
+
+9. By 8, the attacker may know aid_2.
+By 7, the attacker may know cert(xidAP_2,pk(k),APCertSignature_1).
+By 2, the attacker may know g_2.
+Using the function 3-tuple the attacker may obtain (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+attacker((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+
+10. By 9, the attacker may know (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+Using the function Auth1 the attacker may obtain Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+attacker(Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2))).
+
+11. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 10 may be received at input {25}.
+So the message Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+12. By 11, the attacker may know Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+13. By 12, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 3-proj-7-tuple the attacker may obtain nue_3.
+attacker(nue_3).
+
+14. By 12, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 4-proj-7-tuple the attacker may obtain exp(g_2,x_1).
+attacker(exp(g_2,x_1)).
+
+15. By 14, the attacker may know exp(g_2,x_1).
+By 13, the attacker may know nue_3.
+By 1, the attacker may know nap_3.
+Using the function HMAC_MAC_key the attacker may obtain HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3).
+attacker(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3)).
+
+16. The attacker has some term g_3.
+attacker(g_3).
+
+17. The attacker has some term APCertSignature_2.
+attacker(APCertSignature_2).
+
+18. The attacker has some term pkAP_2.
+attacker(pkAP_2).
+
+19. The attacker has some term idAP_3.
+attacker(idAP_3).
+
+20. By 19, the attacker may know idAP_3.
+By 18, the attacker may know pkAP_2.
+By 17, the attacker may know APCertSignature_2.
+Using the function cert the attacker may obtain cert(idAP_3,pkAP_2,APCertSignature_2).
+attacker(cert(idAP_3,pkAP_2,APCertSignature_2)).
+
+21. The attacker has some term aid_3.
+attacker(aid_3).
+
+22. By 21, the attacker may know aid_3.
+By 20, the attacker may know cert(idAP_3,pkAP_2,APCertSignature_2).
+By 16, the attacker may know g_3.
+Using the function 3-tuple the attacker may obtain (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+attacker((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+
+23. By 22, the attacker may know (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+Using the function Auth1 the attacker may obtain Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+attacker(Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3))).
+
+24. The message Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)) that the attacker may have by 23 may be received at input {25}.
+So the message Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+25. By 24, the attacker may know Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+26. By 25, the attacker may know (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 5-proj-7-tuple the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+27. By 26, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 3-proj-cert the attacker may obtain signCert(idUE[],pk(skUE[]),sskAS[]).
+attacker(signCert(idUE[],pk(skUE[]),sskAS[])).
+
+28. The message pk(skUE[]) may be sent to the attacker at output {11}.
+attacker(pk(skUE[])).
+
+29. By 26, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idUE[].
+attacker(idUE[]).
+
+30. By 29, the attacker may know idUE[].
+By 28, the attacker may know pk(skUE[]).
+By 27, the attacker may know signCert(idUE[],pk(skUE[]),sskAS[]).
+Using the function cert the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+31. The attacker has some term nap'_2.
+attacker(nap'_2).
+
+32. The attacker has some term nue'_2.
+attacker(nue'_2).
+
+33. The attacker has some term macUE'_2.
+attacker(macUE'_2).
+
+34. The attacker has some term macAP'_2.
+attacker(macAP'_2).
+
+35. By 34, the attacker may know macAP'_2.
+By 33, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+36. By 35, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 32, the attacker may know nue'_2.
+By 31, the attacker may know nap'_2.
+By 30, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 30, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+
+37. By 36, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))))).
+
+38. The message Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))) that the attacker may have by 37 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+39. By 38, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+40. By 39, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+
+41. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+42. By 35, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 32, the attacker may know nue'_2.
+By 31, the attacker may know nap'_2.
+By 41, the attacker may know 0.
+By 41, the attacker may know 0.
+By 30, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 30, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 40, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+43. By 6, the attacker may know xidAP_2.
+By 29, the attacker may know idUE[].
+By 1, the attacker may know nap_3.
+By 13, the attacker may know nue_3.
+By 2, the attacker may know g_2.
+By 14, the attacker may know exp(g_2,x_1).
+By 41, the attacker may know 0.
+By 42, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+attacker((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+44. By 43, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+By 4, the attacker may know k.
+Using the function sign the attacker may obtain sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+attacker(sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+
+45. By 6, the attacker may know xidAP_2.
+By 29, the attacker may know idUE[].
+By 1, the attacker may know nap_3.
+By 13, the attacker may know nue_3.
+By 2, the attacker may know g_2.
+By 14, the attacker may know exp(g_2,x_1).
+By 41, the attacker may know 0.
+By 42, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+By 44, the attacker may know sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+Using the function 9-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+attacker((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+
+46. By 45, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+Using the function Auth5 the attacker may obtain Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+attacker(Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)))).
+
+47. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 10 may be received at input {25}.
+The message Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))) that the attacker may have by 46 may be received at input {34}.
+So event UE_BK_contains(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3)) may be executed at {42}.
+event(UE_BK_contains(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3))).
+
+48. By 47, event(UE_BK_contains(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3))).
+By 15, attacker(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3)).
+The goals are reached, combined in the following fact:
+event(UE_BK_contains(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3))) && attacker(HMAC_MAC_key(exp(g_2,x_1),nue_3,nap_3)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_3 at {1}
+
+new idAP: id creating idAP_4 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+in(cNoSec, Auth1((a,cert(a_1,a_2,a_3),a_4))) at {25} in copy a_5
+
+event UE_AID_finish(idUE_3,a) at {27} in copy a_5
+
+new nue: nonce creating nue_5 at {28} in copy a_5
+
+new x: exponent creating x_3 at {29} in copy a_5
+
+out(cNoSec, Auth2((~M_3,~M_4,~M_5,~M_6,cert(~M_7,~M_8,~M_9),~M_10,~M_11))) with ~M_3 = a, ~M_4 = a_1, ~M_5 = nue_5, ~M_6 = exp(a_4,x_3), ~M_7 = idUE_3, ~M_8 = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_10 = a_4, ~M_11 = sign((a,a_1,nue_5,exp(a_4,x_3),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_5
+
+in(cNoSec, Auth1((a_6,cert(a_7,pk(a_8),a_9),a_10))) at {25} in copy a_11
+
+event UE_AID_finish(idUE_3,a_6) at {27} in copy a_11
+
+new nue: nonce creating nue_6 at {28} in copy a_11
+
+new x: exponent creating x_4 at {29} in copy a_11
+
+out(cNoSec, Auth2((~M_12,~M_13,~M_14,~M_15,cert(~M_16,~M_17,~M_18),~M_19,~M_20))) with ~M_12 = a_6, ~M_13 = a_7, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_16 = idUE_3, ~M_17 = pk(skUE_2), ~M_18 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_19 = a_10, ~M_20 = sign((a_6,a_7,nue_6,exp(a_10,x_4),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_11
+
+in(cNoSec, Auth3((ADDID(a_12,a_13),a_14,a_15,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9)))) with ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2) at {88} in copy a_16
+
+out(cNoSec, Auth4((ADDID(~M_21,~M_22),~M_23,~M_24,0,0,cert(~M_25,~M_26,~M_27),cert(~M_28,~M_29,~M_30),~M_31))) with ~M_21 = a_12, ~M_22 = a_13, ~M_23 = a_14, ~M_24 = a_15, ~M_25 = idUE_3, ~M_26 = pk(skUE_2), ~M_27 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_28 = idUE_3, ~M_29 = pk(skUE_2), ~M_30 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2) at {97} in copy a_16
+
+in(cNoSec, Auth5((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31),sign((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8)))) with ~M_7 = idUE_3, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2), sign((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8) = sign((a_7,idUE_3,a_17,nue_6,a_10,exp(a_10,x_4),0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2))),a_8) at {34} in copy a_11
+
+event UE_BK_contains(HMAC_MAC_key(exp(a_10,x_4),nue_6,a_17)) at {42} in copy a_11 (goal)
+
+The event UE_BK_contains(HMAC_MAC_key(exp(a_10,x_4),nue_6,a_17)) is executed at {42} in copy a_11.
+The attacker has the message HMAC_MAC_key(~M_15,~M_14,a_17) = HMAC_MAC_key(exp(a_10,x_4),nue_6,a_17).
+A trace has been found.
+RESULT secret UE_BK is false.
+-- Query secret AP_newAid encoded as not (event(AP_newAid_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 138 rules (59 with conclusion selected). Queue: 17 rules.
+Starting query secret AP_newAid
+goal reachable: attacker(macAP'_2) && attacker(macUE'_2) && attacker(nap'_2) && attacker(nue'_2) && attacker(nue_3) && attacker(idUE_3) && attacker(UECertSignature_1) && attacker(k) -> event(AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)))) && attacker(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)))
+Abbreviations:
+g_2 = g_1[!1 = @sid]
+aid_2 = aid_1[!1 = @sid]
+y_1 = y[msg4 = Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+nap_3 = nap_1[msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+
+Derivation:
+Abbreviations:
+g_2 = g_1[!1 = @sid]
+aid_2 = aid_1[!1 = @sid]
+y_1 = y[msg4 = Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+nap_3 = nap_1[msg2_1 = Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))),!1 = @sid]
+aid_3 = aid_1[!1 = @sid_1]
+g_3 = g_1[!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(k).
+
+2. The message Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)) may be sent to the attacker at output {56}.
+attacker(Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2))).
+
+3. By 2, the attacker may know Auth1((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)).
+Using the function 1-proj-Auth1 the attacker may obtain (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+attacker((aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2)).
+
+4. By 3, the attacker may know (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+Using the function 3-proj-3-tuple the attacker may obtain g_2.
+attacker(g_2).
+
+5. We assume as hypothesis that
+attacker(UECertSignature_1).
+
+6. By 1, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+7. We assume as hypothesis that
+attacker(idUE_3).
+
+8. By 7, the attacker may know idUE_3.
+By 6, the attacker may know pk(k).
+By 5, the attacker may know UECertSignature_1.
+Using the function cert the attacker may obtain cert(idUE_3,pk(k),UECertSignature_1).
+attacker(cert(idUE_3,pk(k),UECertSignature_1)).
+
+9. We assume as hypothesis that
+attacker(nue_3).
+
+10. The message Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)) may be sent to the attacker at output {56}.
+attacker(Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3))).
+
+11. By 10, the attacker may know Auth1((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)).
+Using the function 1-proj-Auth1 the attacker may obtain (aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3).
+attacker((aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3)).
+
+12. By 11, the attacker may know (aid_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_3).
+Using the function 2-proj-3-tuple the attacker may obtain cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+attacker(cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+
+13. By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idAP[].
+attacker(idAP[]).
+
+14. By 3, the attacker may know (aid_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),g_2).
+Using the function 1-proj-3-tuple the attacker may obtain aid_2.
+attacker(aid_2).
+
+15. By 14, the attacker may know aid_2.
+By 13, the attacker may know idAP[].
+By 9, the attacker may know nue_3.
+By 4, the attacker may know g_2.
+By 8, the attacker may know cert(idUE_3,pk(k),UECertSignature_1).
+By 4, the attacker may know g_2.
+Using the function 6-tuple the attacker may obtain (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2).
+attacker((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2)).
+
+16. By 15, the attacker may know (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2).
+By 1, the attacker may know k.
+Using the function sign the attacker may obtain sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k).
+attacker(sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+
+17. By 14, the attacker may know aid_2.
+By 13, the attacker may know idAP[].
+By 9, the attacker may know nue_3.
+By 4, the attacker may know g_2.
+By 8, the attacker may know cert(idUE_3,pk(k),UECertSignature_1).
+By 4, the attacker may know g_2.
+By 16, the attacker may know sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k).
+Using the function 7-tuple the attacker may obtain (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+attacker((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))).
+
+18. By 17, the attacker may know (aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)).
+Using the function Auth2 the attacker may obtain Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))).
+attacker(Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k)))).
+
+19. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+So the message Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))) may be sent to the attacker at output {65}.
+attacker(Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)))).
+
+20. By 19, the attacker may know Auth3((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))).
+Using the function 1-proj-Auth3 the attacker may obtain (ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)).
+attacker((ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1))).
+
+21. By 20, the attacker may know (ADDID(macAP[],macUE[]),nap_3,nue_3,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idUE_3,pk(k),UECertSignature_1)).
+Using the function 2-proj-5-tuple the attacker may obtain nap_3.
+attacker(nap_3).
+
+22. We assume as hypothesis that
+attacker(nue'_2).
+
+23. We assume as hypothesis that
+attacker(nap'_2).
+
+24. We assume as hypothesis that
+attacker(macUE'_2).
+
+25. We assume as hypothesis that
+attacker(macAP'_2).
+
+26. By 25, the attacker may know macAP'_2.
+By 24, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+27. By 26, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 23, the attacker may know nap'_2.
+By 22, the attacker may know nue'_2.
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))).
+
+28. By 27, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))))).
+
+29. The message Auth3((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])))) that the attacker may have by 28 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])))).
+
+30. By 29, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+
+31. By 30, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+
+32. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+33. By 26, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 23, the attacker may know nap'_2.
+By 22, the attacker may know nue'_2.
+By 32, the attacker may know 0.
+By 32, the attacker may know 0.
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 12, the attacker may know cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])).
+By 31, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+
+34. By 33, the attacker may know (ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])).
+Using the function Auth4 the attacker may obtain Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))).
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])))).
+
+35. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+The message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) that the attacker may have by 34 may be received at input {66}.
+So the message Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))) may be sent to the attacker at output {83}.
+attacker(Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])))).
+
+36. By 35, the attacker may know Auth5((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))).
+Using the function 1-proj-Auth5 the attacker may obtain (idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])).
+attacker((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[]))).
+
+37. By 36, the attacker may know (idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[])),sign((idAP[],idUE_3,nap_3,nue_3,exp(g_2,y_1),g_2,0,(ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))),skAP[])).
+Using the function 5-proj-9-tuple the attacker may obtain exp(g_2,y_1).
+attacker(exp(g_2,y_1)).
+
+38. By 37, the attacker may know exp(g_2,y_1).
+By 9, the attacker may know nue_3.
+By 21, the attacker may know nap_3.
+Using the function HMAC_MAC_nonce the attacker may obtain HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3).
+attacker(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)).
+
+39. By 38, the attacker may know HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3).
+Using the function hash the attacker may obtain hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)).
+attacker(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3))).
+
+40. The message Auth2((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2,sign((aid_2,idAP[],nue_3,g_2,cert(idUE_3,pk(k),UECertSignature_1),g_2),k))) that the attacker may have by 18 may be received at input {58}.
+The message Auth4((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nap'_2,nue'_2,0,0,cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[])),cert(idAP[],pk(skAP[]),signCert(idAP[],pk(skAP[]),sskAS[]))),skAS[]))) that the attacker may have by 34 may be received at input {66}.
+So event AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3))) may be executed at {78}.
+event(AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)))).
+
+41. By 40, event(AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)))).
+By 39, attacker(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3))).
+The goals are reached, combined in the following fact:
+event(AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3)))) && attacker(hash(HMAC_MAC_nonce(exp(g_2,y_1),nue_3,nap_3))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_4 at {1}
+
+new idAP: id creating idAP_3 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+new aid_1: nonce creating aid_4 at {53} in copy a
+
+new g_1: G creating g_4 at {54} in copy a
+
+out(cNoSec, Auth1((~M_3,cert(~M_4,~M_5,~M_6),~M_7))) with ~M_3 = aid_4, ~M_4 = idAP_3, ~M_5 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_7 = g_4 at {56} in copy a
+
+event AP_AID_finish(idAP_3,aid_4) at {57} in copy a
+
+new aid_1: nonce creating aid_5 at {53} in copy a_1
+
+new g_1: G creating g_5 at {54} in copy a_1
+
+out(cNoSec, Auth1((~M_8,cert(~M_9,~M_10,~M_11),~M_12))) with ~M_8 = aid_5, ~M_9 = idAP_3, ~M_10 = pk(skAP_2), ~M_11 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_12 = g_5 at {56} in copy a_1
+
+event AP_AID_finish(idAP_3,aid_5) at {57} in copy a_1
+
+in(cNoSec, Auth2((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7,sign((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7),a_4)))) with ~M_3 = aid_4, ~M_4 = idAP_3, ~M_7 = g_4, ~M_7 = g_4, sign((~M_3,~M_4,a_2,~M_7,cert(a_3,pk(a_4),a_5),~M_7),a_4) = sign((aid_4,idAP_3,a_2,g_4,cert(a_3,pk(a_4),a_5),g_4),a_4) at {58} in copy a
+
+new nap_1: nonce creating nap_4 at {63} in copy a
+
+out(cNoSec, Auth3((ADDID(~M_13,~M_14),~M_15,~M_16,cert(~M_17,~M_18,~M_19),cert(~M_20,~M_21,~M_22)))) with ~M_13 = macAP_4, ~M_14 = macUE_4, ~M_15 = nap_4, ~M_16 = a_2, ~M_17 = idAP_3, ~M_18 = pk(skAP_2), ~M_19 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_20 = a_3, ~M_21 = pk(a_4), ~M_22 = a_5 at {65} in copy a
+
+in(cNoSec, Auth3((ADDID(a_6,a_7),a_8,a_9,cert(~M_4,~M_1,~M_6),cert(~M_4,~M_1,~M_6)))) with ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2) at {88} in copy a_10
+
+out(cNoSec, Auth4((ADDID(~M_23,~M_24),~M_25,~M_26,0,0,cert(~M_27,~M_28,~M_29),cert(~M_30,~M_31,~M_32),~M_33))) with ~M_23 = a_6, ~M_24 = a_7, ~M_25 = a_8, ~M_26 = a_9, ~M_27 = idAP_3, ~M_28 = pk(skAP_2), ~M_29 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_30 = idAP_3, ~M_31 = pk(skAP_2), ~M_32 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_33 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2) at {97} in copy a_10
+
+in(cNoSec, Auth4((ADDID(a_6,a_7),a_8,a_9,0,0,cert(~M_4,~M_1,~M_6),cert(~M_4,~M_1,~M_6),~M_33))) with ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_4 = idAP_3, ~M_1 = pk(skAP_2), ~M_6 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_33 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2) at {66} in copy a
+
+new y: exponent creating y_2 at {71} in copy a
+
+event AP_BK_contains(HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4)) at {75} in copy a
+
+event AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4))) at {78} in copy a (goal)
+
+event APFinishAuthBK(idAP_3,HMAC_MAC_key(exp(g_4,y_2),a_2,nap_4)) at {79} in copy a
+
+event APFinishAuthAID(idAP_3,hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4))) at {80} in copy a
+
+out(cNoSec, Auth5((~M_34,~M_35,~M_36,~M_37,~M_38,~M_39,0,(ADDID(~M_40,~M_41),~M_42,~M_43,0,0,cert(~M_44,~M_45,~M_46),cert(~M_47,~M_48,~M_49),~M_50),~M_51))) with ~M_34 = idAP_3, ~M_35 = a_3, ~M_36 = nap_4, ~M_37 = a_2, ~M_38 = exp(g_4,y_2), ~M_39 = g_4, ~M_40 = a_6, ~M_41 = a_7, ~M_42 = a_8, ~M_43 = a_9, ~M_44 = idAP_3, ~M_45 = pk(skAP_2), ~M_46 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_47 = idAP_3, ~M_48 = pk(skAP_2), ~M_49 = signCert(idAP_3,pk(skAP_2),sskAS_2), ~M_50 = sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2), ~M_51 = sign((idAP_3,a_3,nap_4,a_2,exp(g_4,y_2),g_4,0,(ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),sign((ADDID(a_6,a_7),a_8,a_9,0,0,cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2)),cert(idAP_3,pk(skAP_2),signCert(idAP_3,pk(skAP_2),sskAS_2))),skAS_2))),skAP_2) at {83} in copy a
+
+The event AP_newAid_contains(hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4))) is executed at {78} in copy a.
+The attacker has the message hash(HMAC_MAC_nonce(~M_38,a_2,~M_15)) = hash(HMAC_MAC_nonce(exp(g_4,y_2),a_2,nap_4)).
+A trace has been found.
+RESULT secret AP_newAid is false.
+-- Query secret UE_newAid encoded as not (event(UE_newAid_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 140 rules (59 with conclusion selected). Queue: 13 rules.
+Starting query secret UE_newAid
+goal reachable: attacker(aid_2) && attacker(xidAP_2) && attacker(k) && attacker(APCertSignature_1) && attacker(g_2) && attacker(nap_3) -> event(UE_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)))) && attacker(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)))
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+
+Derivation:
+Abbreviations:
+x_1 = x[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_3 = nue[msg2 = Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)),!1 = @sid]
+nue_4 = nue[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+x_2 = x[msg2 = Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)),!1 = @sid_1]
+
+1. We assume as hypothesis that
+attacker(nap_3).
+
+2. We assume as hypothesis that
+attacker(g_2).
+
+3. We assume as hypothesis that
+attacker(APCertSignature_1).
+
+4. We assume as hypothesis that
+attacker(k).
+
+5. By 4, the attacker may know k.
+Using the function pk the attacker may obtain pk(k).
+attacker(pk(k)).
+
+6. We assume as hypothesis that
+attacker(xidAP_2).
+
+7. By 6, the attacker may know xidAP_2.
+By 5, the attacker may know pk(k).
+By 3, the attacker may know APCertSignature_1.
+Using the function cert the attacker may obtain cert(xidAP_2,pk(k),APCertSignature_1).
+attacker(cert(xidAP_2,pk(k),APCertSignature_1)).
+
+8. We assume as hypothesis that
+attacker(aid_2).
+
+9. By 8, the attacker may know aid_2.
+By 7, the attacker may know cert(xidAP_2,pk(k),APCertSignature_1).
+By 2, the attacker may know g_2.
+Using the function 3-tuple the attacker may obtain (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+attacker((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+
+10. By 9, the attacker may know (aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2).
+Using the function Auth1 the attacker may obtain Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)).
+attacker(Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2))).
+
+11. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 10 may be received at input {25}.
+So the message Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+12. By 11, the attacker may know Auth2((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+13. By 12, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 3-proj-7-tuple the attacker may obtain nue_3.
+attacker(nue_3).
+
+14. By 12, the attacker may know (aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_2,sign((aid_2,xidAP_2,nue_3,exp(g_2,x_1),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 4-proj-7-tuple the attacker may obtain exp(g_2,x_1).
+attacker(exp(g_2,x_1)).
+
+15. By 14, the attacker may know exp(g_2,x_1).
+By 13, the attacker may know nue_3.
+By 1, the attacker may know nap_3.
+Using the function HMAC_MAC_nonce the attacker may obtain HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3).
+attacker(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)).
+
+16. By 15, the attacker may know HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3).
+Using the function hash the attacker may obtain hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)).
+attacker(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3))).
+
+17. The attacker has some term g_3.
+attacker(g_3).
+
+18. The attacker has some term APCertSignature_2.
+attacker(APCertSignature_2).
+
+19. The attacker has some term pkAP_2.
+attacker(pkAP_2).
+
+20. The attacker has some term idAP_3.
+attacker(idAP_3).
+
+21. By 20, the attacker may know idAP_3.
+By 19, the attacker may know pkAP_2.
+By 18, the attacker may know APCertSignature_2.
+Using the function cert the attacker may obtain cert(idAP_3,pkAP_2,APCertSignature_2).
+attacker(cert(idAP_3,pkAP_2,APCertSignature_2)).
+
+22. The attacker has some term aid_3.
+attacker(aid_3).
+
+23. By 22, the attacker may know aid_3.
+By 21, the attacker may know cert(idAP_3,pkAP_2,APCertSignature_2).
+By 17, the attacker may know g_3.
+Using the function 3-tuple the attacker may obtain (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+attacker((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+
+24. By 23, the attacker may know (aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3).
+Using the function Auth1 the attacker may obtain Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)).
+attacker(Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3))).
+
+25. The message Auth1((aid_3,cert(idAP_3,pkAP_2,APCertSignature_2),g_3)) that the attacker may have by 24 may be received at input {25}.
+So the message Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))) may be sent to the attacker at output {33}.
+attacker(Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])))).
+
+26. By 25, the attacker may know Auth2((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+Using the function 1-proj-Auth2 the attacker may obtain (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+attacker((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[]))).
+
+27. By 26, the attacker may know (aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),g_3,sign((aid_3,idAP_3,nue_4,exp(g_3,x_2),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skUE[])).
+Using the function 5-proj-7-tuple the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+28. By 27, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 3-proj-cert the attacker may obtain signCert(idUE[],pk(skUE[]),sskAS[]).
+attacker(signCert(idUE[],pk(skUE[]),sskAS[])).
+
+29. The message pk(skUE[]) may be sent to the attacker at output {11}.
+attacker(pk(skUE[])).
+
+30. By 27, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 1-proj-cert the attacker may obtain idUE[].
+attacker(idUE[]).
+
+31. By 30, the attacker may know idUE[].
+By 29, the attacker may know pk(skUE[]).
+By 28, the attacker may know signCert(idUE[],pk(skUE[]),sskAS[]).
+Using the function cert the attacker may obtain cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+attacker(cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+
+32. The attacker has some term nap'_2.
+attacker(nap'_2).
+
+33. The attacker has some term nue'_2.
+attacker(nue'_2).
+
+34. The attacker has some term macUE'_2.
+attacker(macUE'_2).
+
+35. The attacker has some term macAP'_2.
+attacker(macAP'_2).
+
+36. By 35, the attacker may know macAP'_2.
+By 34, the attacker may know macUE'_2.
+Using the function ADDID the attacker may obtain ADDID(macAP'_2,macUE'_2).
+attacker(ADDID(macAP'_2,macUE'_2)).
+
+37. By 36, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 33, the attacker may know nue'_2.
+By 32, the attacker may know nap'_2.
+By 31, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 31, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+Using the function 5-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+
+38. By 37, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))).
+Using the function Auth3 the attacker may obtain Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))).
+attacker(Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))))).
+
+39. The message Auth3((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])))) that the attacker may have by 38 may be received at input {88}.
+So the message Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))) may be sent to the attacker at output {97}.
+attacker(Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+40. By 39, the attacker may know Auth4((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+Using the function 1-proj-Auth4 the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+41. By 40, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+attacker(sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+
+42. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+43. By 36, the attacker may know ADDID(macAP'_2,macUE'_2).
+By 33, the attacker may know nue'_2.
+By 32, the attacker may know nap'_2.
+By 42, the attacker may know 0.
+By 42, the attacker may know 0.
+By 31, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 31, the attacker may know cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])).
+By 41, the attacker may know sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]).
+Using the function 8-tuple the attacker may obtain (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+attacker((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+
+44. By 6, the attacker may know xidAP_2.
+By 30, the attacker may know idUE[].
+By 1, the attacker may know nap_3.
+By 13, the attacker may know nue_3.
+By 2, the attacker may know g_2.
+By 14, the attacker may know exp(g_2,x_1).
+By 42, the attacker may know 0.
+By 43, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+Using the function 8-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+attacker((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])))).
+
+45. By 44, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))).
+By 4, the attacker may know k.
+Using the function sign the attacker may obtain sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+attacker(sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+
+46. By 6, the attacker may know xidAP_2.
+By 30, the attacker may know idUE[].
+By 1, the attacker may know nap_3.
+By 13, the attacker may know nue_3.
+By 2, the attacker may know g_2.
+By 14, the attacker may know exp(g_2,x_1).
+By 42, the attacker may know 0.
+By 43, the attacker may know (ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])).
+By 45, the attacker may know sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k).
+Using the function 9-tuple the attacker may obtain (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+attacker((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+
+47. By 46, the attacker may know (xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)).
+Using the function Auth5 the attacker may obtain Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))).
+attacker(Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k)))).
+
+48. The message Auth1((aid_2,cert(xidAP_2,pk(k),APCertSignature_1),g_2)) that the attacker may have by 10 may be received at input {25}.
+The message Auth5((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[])),sign((xidAP_2,idUE[],nap_3,nue_3,g_2,exp(g_2,x_1),0,(ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),sign((ADDID(macAP'_2,macUE'_2),nue'_2,nap'_2,0,0,cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[])),cert(idUE[],pk(skUE[]),signCert(idUE[],pk(skUE[]),sskAS[]))),skAS[]))),k))) that the attacker may have by 47 may be received at input {34}.
+So event UE_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3))) may be executed at {45}.
+event(UE_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)))).
+
+49. By 48, event(UE_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)))).
+By 16, attacker(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3))).
+The goals are reached, combined in the following fact:
+event(UE_newAid_contains(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3)))) && attacker(hash(HMAC_MAC_nonce(exp(g_2,x_1),nue_3,nap_3))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new idUE: id creating idUE_3 at {1}
+
+new idAP: id creating idAP_4 at {2}
+
+new idAS: id creating idAS_4 at {3}
+
+new skUE: skey creating skUE_2 at {4}
+
+new skAP: skey creating skAP_2 at {5}
+
+new skAS: skey creating skAS_2 at {6}
+
+new sskAS: sskey creating sskAS_2 at {7}
+
+new macUE: macAddress creating macUE_4 at {8}
+
+new macAP: macAddress creating macAP_4 at {9}
+
+out(cNoSec, ~M) with ~M = pk(skUE_2) at {11}
+
+out(cNoSec, ~M_1) with ~M_1 = pk(skAP_2) at {13}
+
+out(cNoSec, ~M_2) with ~M_2 = pk(skAS_2) at {15}
+
+in(cNoSec, Auth1((a,cert(a_1,a_2,a_3),a_4))) at {25} in copy a_5
+
+event UE_AID_finish(idUE_3,a) at {27} in copy a_5
+
+new nue: nonce creating nue_5 at {28} in copy a_5
+
+new x: exponent creating x_3 at {29} in copy a_5
+
+out(cNoSec, Auth2((~M_3,~M_4,~M_5,~M_6,cert(~M_7,~M_8,~M_9),~M_10,~M_11))) with ~M_3 = a, ~M_4 = a_1, ~M_5 = nue_5, ~M_6 = exp(a_4,x_3), ~M_7 = idUE_3, ~M_8 = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_10 = a_4, ~M_11 = sign((a,a_1,nue_5,exp(a_4,x_3),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_5
+
+in(cNoSec, Auth1((a_6,cert(a_7,pk(a_8),a_9),a_10))) at {25} in copy a_11
+
+event UE_AID_finish(idUE_3,a_6) at {27} in copy a_11
+
+new nue: nonce creating nue_6 at {28} in copy a_11
+
+new x: exponent creating x_4 at {29} in copy a_11
+
+out(cNoSec, Auth2((~M_12,~M_13,~M_14,~M_15,cert(~M_16,~M_17,~M_18),~M_19,~M_20))) with ~M_12 = a_6, ~M_13 = a_7, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_16 = idUE_3, ~M_17 = pk(skUE_2), ~M_18 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_19 = a_10, ~M_20 = sign((a_6,a_7,nue_6,exp(a_10,x_4),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skUE_2) at {33} in copy a_11
+
+in(cNoSec, Auth3((ADDID(a_12,a_13),a_14,a_15,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9)))) with ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2) at {88} in copy a_16
+
+out(cNoSec, Auth4((ADDID(~M_21,~M_22),~M_23,~M_24,0,0,cert(~M_25,~M_26,~M_27),cert(~M_28,~M_29,~M_30),~M_31))) with ~M_21 = a_12, ~M_22 = a_13, ~M_23 = a_14, ~M_24 = a_15, ~M_25 = idUE_3, ~M_26 = pk(skUE_2), ~M_27 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_28 = idUE_3, ~M_29 = pk(skUE_2), ~M_30 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2) at {97} in copy a_16
+
+in(cNoSec, Auth5((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31),sign((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8)))) with ~M_7 = idUE_3, ~M_14 = nue_6, ~M_15 = exp(a_10,x_4), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_7 = idUE_3, ~M = pk(skUE_2), ~M_9 = signCert(idUE_3,pk(skUE_2),sskAS_2), ~M_31 = sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2), sign((a_7,~M_7,a_17,~M_14,a_10,~M_15,0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(~M_7,~M,~M_9),cert(~M_7,~M,~M_9),~M_31)),a_8) = sign((a_7,idUE_3,a_17,nue_6,a_10,exp(a_10,x_4),0,(ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),sign((ADDID(a_12,a_13),a_14,a_15,0,0,cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2)),cert(idUE_3,pk(skUE_2),signCert(idUE_3,pk(skUE_2),sskAS_2))),skAS_2))),a_8) at {34} in copy a_11
+
+event UE_BK_contains(HMAC_MAC_key(exp(a_10,x_4),nue_6,a_17)) at {42} in copy a_11
+
+event UE_newAid_contains(hash(HMAC_MAC_nonce(exp(a_10,x_4),nue_6,a_17))) at {45} in copy a_11 (goal)
+
+The event UE_newAid_contains(hash(HMAC_MAC_nonce(exp(a_10,x_4),nue_6,a_17))) is executed at {45} in copy a_11.
+The attacker has the message hash(HMAC_MAC_nonce(~M_15,~M_14,a_17)) = hash(HMAC_MAC_nonce(exp(a_10,x_4),nue_6,a_17)).
+A trace has been found.
+RESULT secret UE_newAid is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query inj-event(APSendAID(idUE_3,AID)) ==> inj-event(UESendAID(idAP_3)) is true.
+
+Query inj-event(UEFinishAuthBK(idUE_3,BK)) ==> inj-event(APFinishAuthBK(idAP_3,BK)) is false.
+
+Query inj-event(UEFinishAuthAID(idUE_3,AID)) ==> inj-event(APFinishAuthAID(idAP_3,AID)) is false.
+
+Query inj-event(UE_AID_finish(idUE_3,aid_2)) ==> inj-event(AP_AID_finish(idAP_3,aid_2)) is false.
+
+Query secret AP_BK is false.
+
+Query secret UE_BK is false.
+
+Query secret AP_newAid is false.
+
+Query secret UE_newAid is false.
+
+--------------------------------------------------------------
+

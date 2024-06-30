@@ -1,0 +1,214 @@
+(* 类型 *)
+type bkey. (* 基密钥 *)
+type pkey. (* 公钥 *)
+type skey. (* 私钥 *)
+type spkey. 
+type sskey. 
+type nonce. (* 随机数 *)
+type message. (* 消息 *)
+type id.    (* 标识符 *) 
+
+type macAddress. (* mac地址 *)
+type addid. (* 地址标识符 *)
+
+(* type challenge. (* 挑战 *)*)
+type cert.  (* 证书 *)
+type certSign. (* 证书签名 *)
+
+const pass:bitstring.
+
+(* 消息签名 *)
+fun spk(skey): pkey.
+fun sign2m(bitstring, skey): bitstring.
+reduc forall m:bitstring, sk:skey; checksign(m, sign2m(m, sk), spk(sk)) = pass.
+
+(* 证书签名 *)
+fun cpk(sskey): spkey.
+fun sign2cert(id, pkey, sskey): certSign.   (* 证书签名 *)
+fun certificat(id, pkey, certSign): cert [data]. 
+reduc forall Pid:id, Pspk:pkey, ssk:sskey; checkcert(certificat(Pid, Pspk, sign2cert(Pid, Pspk, ssk)), cpk(ssk)) = pass.
+
+(* -----Diffie-Hellman 密钥交换协议 ---- *)
+type ex.
+type G. (* 基数 *)
+const g_: G [data].
+fun exponent(G, ex): G.
+equation forall a:ex, b:ex; exponent(exponent(g_, a), b) = exponent(exponent(g_, b), a).
+
+(* HashMac *)
+fun HashMac_BK(G, nonce, nonce): bkey.
+fun HashMac_nonce(G, nonce, nonce): nonce.
+fun SHA256(nonce): nonce.
+
+
+(* 事件序列 *)
+event SAT_sid(id, nonce).  (* SAT收到sid *)
+event AP_sid_sent(id, nonce). (* AP发送sid *)
+event AP_bk_generate(id, bkey).
+event AP_nextid_generate(id, nonce).
+event SAT_bk_generate(id, bkey).
+event SAT_nextid_generate(id, nonce).
+
+(* 通信过程 *)
+fun Process1(bitstring): message [data].
+fun Process2(bitstring): message [data].
+fun Process3(bitstring): message [data].
+fun Process4(bitstring): message [data].
+fun Process5(bitstring): message [data].
+
+(* ADDID *)
+fun ADDID(macAddress, macAddress): addid [data].
+
+
+(* channel *)
+free c:channel.
+
+
+(* -------------------query------------------- *)
+query secret SAT_bk.
+query secret SAT_nextid.
+query secret AP_bk.
+query secret AP_nextid.
+
+query SAT_id:id, AP_id:id, bk: bkey; inj-event(SAT_bk_generate(SAT_id, bk)) ==> inj-event(AP_bk_generate(SAT_id, bk)).
+query SAT_id:id, AP_id:id, nextid: nonce; inj-event(SAT_nextid_generate(SAT_id, nextid)) ==> inj-event(AP_nextid_generate(SAT_id, nextid)).
+query SAT_id:id, AP_id:id, sid:nonce; inj-event(SAT_sid(SAT_id, sid)) ==> inj-event(AP_sid_sent(AP_id, sid)).
+
+
+(* 通信协议 *)
+let SAT_Auth(SAT_id:id, SAT_sk:skey, certSAT:cert, certAS:cert, macSAT: macAddress ) = (
+    let certificat(AS_id, AS_pk, certSignAS) = certAS in
+    in(c, msg1:message);
+    let Process1((sid: nonce, certAP: cert, g: G, b: ex)) = msg1 in
+    let certificat(AP_id, AP_pk, certSignAP) = certAP in
+    (* 接收到AP的消息 *)
+    (* 生成sid *)
+    event SAT_sid(SAT_id, sid);
+    (* 生成sid完成 *)
+    (* 生成Diffie-Hellman 密钥 *)
+    new challengeSAT: nonce;
+    new a: ex;
+    new g: G;
+    let A = exponent(g, a) in
+    let signSAT = sign2m((sid, AP_id, challengeSAT, certSAT, A, g), SAT_sk) in
+    out(c, Process2((sid, AP_id, challengeSAT, certSAT, signSAT, A, g)));
+    (* sid:鉴别标识，AP_id:AP的身份，challengeSAT:SAT随机数，certSAT:SAT的证书，signSAT:SAT的签名，A,g:公钥和私钥 *)
+    (* 发送access authentification request *)
+    in(c, msg5:message);
+    (* 接收 msg5 *)
+    let Process5((rAP_id:id, rSAT_id: id, rchallengeAP: nonce, rchallengeSAT: nonce, rB: G, rA: G, 
+                    rresponse: nat, rmsg4: message, rsignAP: bitstring)) = msg5 in
+    let Process4((ADDID(ASmacAP: macAddress, ASmacSAT: macAddress), ASchallengeAP: nonce, ASchallengeSAT:nonce,
+                            AScheckAP: nonce, AScheckSAT: nat, AScertAP: nat, AScertSAT: cert, ASsignAS: bitstring)) = rmsg4 in
+    (* 接收到AP的消息 *)
+    if rSAT_id = SAT_id && rAP_id = AP_id && challengeSAT = rchallengeSAT && rA = A then (
+        if checksign((rAP_id, rSAT_id, rchallengeAP, rchallengeSAT, rB, rA, rresponse, rmsg4), rsignAP, AP_pk) = pass then
+        (* 签名验证通过 *)
+        (
+            if rresponse = 1 then(
+                if checksign((ADDID(ASmacAP, ASmacSAT), ASchallengeAP, ASchallengeSAT, AScheckAP, AScheckSAT, AScertAP, AScertSAT, ASsignAS), ASsignAS, AS_pk) = pass then(
+                    let SAT_bk = HashMac_BK(exponent(rB, a), rchallengeAP, rchallengeSAT) in
+                    let SAT_nextid = SHA256(HashMac_nonce(exponent(rB, a), rchallengeAP, rchallengeSAT)) in
+                    event SAT_bk_generate(SAT_id, SAT_bk);
+                    event SAT_nextid_generate(SAT_id, SAT_nextid)
+                )
+            )
+        )
+    )
+).
+
+let AP_Auth(AP_id:id, AP_sk:skey, certAP:cert, certAS: cert, macAP: macAddress, macSAT: macAddress) = (
+    new sid: nonce;
+    new g: G;
+    new b: ex;
+    let B = exponent(g, b) in
+    let msg1 = Process1((sid, certAP, g, B)) in
+    out(c, msg1);
+    (* 发送到SAT的消息 *)
+    event AP_sid_sent(AP_id, sid);
+    (* 发送1完成 *)
+
+    (* 接收SAT消息 *)
+    in(c, msg2:message);
+    let Process2((msid: nonce, mid: id, mchallenge: nonce, mcertSAT: cert, msignSAT: bitstring,  mA: G, mg: G)) = msg2 in
+    let certificat(SAT_id, SAT_pk, certSAT) = mcertSAT in
+    (* 接收到SAT的消息 *)
+    if msid = sid && mid = AP_id && mg = g then(
+        (* 检查SAT的签名 *)
+        if checksign((msid, mid, mchallenge, mcertSAT, mA, mg), msignSAT, SAT_pk) = pass then (* !!!!! review !!!! *)
+        (* 签名验证通过 *)
+        (
+            new challengeAP: nonce;
+            let msg3 = Process3((ADDID(macAP, macSAT), challengeAP, mchallenge, certAP, certSAT)) in
+            out(c, msg3);
+            (* 发送msg3 到 AS *)
+            (* ----------等待AS验证 ------------ *)
+            (* 接收msg4 消息 *)
+            in(c, msg4:message);
+            let Process4((ADDID(ASmacAP: macAddress, ASmacSAT: macAddress), ASchallengeAP: nonce, ASchallengeSAT:nonce,
+                            AScheckAP: nat, AScheckSAT: nat, AScertAP: cert, AScertSAT: cert, ASsignAS: bitstring)) = msg4 in
+            (* 接收到AS的消息 *)
+            let certificat(AS_id, AS_pk, certSignAS) = certAS in
+            if checksign((ADDID(ASmacAP, ASmacSAT), ASchallengeAP, ASchallengeSAT, AScheckAP, AScheckSAT, AScertAP, AScertSAT), ASsignAS, AS_pk) = pass then
+            (* 签名验证通过 *)
+            if AScheckAP = 1 && AScheckSAT = 1 then(
+                new b: ex;
+                let response = 1 in
+                let B = exponent(g, b) in
+                let AP_bk = HashMac_BK(exponent(mA, b), challengeAP, mchallenge) in
+                let AP_nextid = SHA256(HashMac_nonce(exponent(mA, b), challengeAP, mchallenge)) in
+                event AP_bk_generate(AP_id, AP_bk);
+                event AP_nextid_generate(AP_id, AP_nextid);
+                let signAP = sign2m((AP_id, SAT_id, challengeAP, mchallenge, B, mA, response, msg4), AP_sk) in
+                let msg5 = Process5((AP_id, SAT_id, challengeAP, mchallenge, B, mA, response, msg4, signAP)) in
+                out(c, msg5)
+                (* 发送msg5 到SAT *)
+            )
+        )
+    )
+
+).
+
+(* AS 认证协议 *)
+let AS_Auth(AS_id:id, AS_sk: skey, AS_ssk: sskey, certAS: cert) = (
+    in(c, msg3:message);
+    let Process3((ADDID(macAP:macAddress, macSAT: macAddress), challengeAP: nonce, challengeSAT: nonce, certAP: cert, certSAT: cert)) = msg3 in
+    (* 接收到AP的消息 *)
+    (* 验证证书 *)
+    if checkcert(certAP, cpk(AS_ssk)) = pass then
+    (* 证书验证通过 *)
+    let checkAP = 1 in
+    if checkcert(certSAT, cpk(AS_ssk)) = pass then
+    (* 证书验证通过 *)
+    let checkSAT = 1 in
+    if checkAP = 1 && checkSAT = 1 then(
+        let signAS = sign2m((ADDID(macAP, macSAT), challengeAP, challengeSAT, checkAP, checkSAT, certAP, certSAT), AS_sk) in
+        let msg4 = Process4((ADDID(macAP, macSAT), challengeAP, challengeSAT, checkAP, checkSAT, certAP, certSAT, signAS)) in
+        out(c, msg4)
+        (* 发送msg4 到AP *)
+    )
+
+).
+
+process
+    new SAT_id: id;
+    new AP_id: id;
+    new AS_id: id;
+    new SAT_sk: skey;
+    new AP_sk: skey;
+    new AS_sk: skey;
+    new AS_ssk: sskey;
+    new macSAT: macAddress;
+    new macAP: macAddress;
+    let SAT_pk = spk(SAT_sk) in
+    out (c, SAT_pk);
+    let AP_pk = spk(AP_sk) in
+    out (c, AP_pk);
+    let AS_pk = spk(AS_sk) in
+    out (c, AS_pk);
+    
+    let certSAT = certificat(SAT_id, SAT_pk, sign2cert(SAT_id, SAT_pk, AS_ssk)) in
+    let certAP = certificat(AP_id, AP_pk, sign2cert(AP_id, AP_pk, AS_ssk)) in
+    let certAS = certificat(AS_id, AS_pk, sign2cert(AS_id, AS_pk, AS_ssk)) in
+    (SAT_Auth(SAT_id, SAT_sk, certSAT, certAS, macSAT) | AP_Auth(AP_id, AP_sk, certAP, certAS, macAP, macSAT) | AS_Auth(AS_id, AS_sk, AS_ssk, certAS))
+

@@ -1,0 +1,858 @@
+File "exp2/au.pv", line 82, characters 19-21:
+Warning: identifier sid rebound.
+File "exp2/au.pv", line 91, character 9:
+Warning: identifier g rebound.
+File "exp2/au.pv", line 121, characters 9-11:
+Warning: identifier sid rebound.
+Linear part:
+exponent(exponent(g_,a),b) = exponent(exponent(g_,b),a)
+Completing equations...
+Completed equations:
+exponent(exponent(g_,a),b) = exponent(exponent(g_,b),a)
+Convergent part: No equation.
+Process 0 (that is, the initial process):
+{1}new SAT_id: id;
+{2}new AP_id: id;
+{3}new AS_id: id;
+{4}new SAT_sk: skey;
+{5}new AP_sk: skey;
+{6}new AS_sk: skey;
+{7}new AS_ssk: sskey;
+{8}new macSAT: macAddress;
+{9}new macAP: macAddress;
+{10}let SAT_pk: pkey = spk(SAT_sk) in
+{11}out(c, SAT_pk);
+{12}let AP_pk: pkey = spk(AP_sk) in
+{13}out(c, AP_pk);
+{14}let AS_pk: pkey = spk(AS_sk) in
+{15}out(c, AS_pk);
+{16}let certSAT: cert = certificat(SAT_id,SAT_pk,sign2cert(SAT_id,SAT_pk,AS_ssk)) in
+{17}let certAP: cert = certificat(AP_id,AP_pk,sign2cert(AP_id,AP_pk,AS_ssk)) in
+{18}let certAS: cert = certificat(AS_id,AS_pk,sign2cert(AS_id,AS_pk,AS_ssk)) in
+(
+    {19}let SAT_id_1: id = SAT_id in
+    {20}let SAT_sk_1: skey = SAT_sk in
+    {21}let macSAT_1: macAddress = macSAT in
+    {22}let certificat(AS_id_1: id,AS_pk_1: pkey,certSignAS: certSign) = certAS in
+    {23}in(c, msg1: message);
+    {24}let Process1((sid_1: nonce,certAP_1: cert,g: G)) = msg1 in
+    {25}let certificat(AP_id_1: id,AP_pk_1: pkey,certSignAP: certSign) = certAP_1 in
+    {26}event SAT_sid(SAT_id_1,sid_1);
+    {27}new challengeSAT: nonce;
+    {28}new a: ex;
+    {29}new g_1: G;
+    {30}let A: G = exponent(g_1,a) in
+    {31}let signSAT: bitstring = sign2m((sid_1,AP_id_1,challengeSAT,certSAT,A,g_1),SAT_sk_1) in
+    {32}out(c, Process2((sid_1,AP_id_1,challengeSAT,certSAT,signSAT,A,g_1)));
+    {33}in(c, msg5: message);
+    {34}let Process5((rAP_id: id,rSAT_id: id,rchallengeAP: nonce,rchallengeSAT: nonce,rB: G,rA: G,rresponse: nat,rmsg4: message,rsignAP: bitstring)) = msg5 in
+    {35}let Process4((ADDID(ASmacAP: macAddress,ASmacSAT: macAddress),ASchallengeAP: nonce,ASchallengeSAT: nonce,AScheckAP: nonce,AScheckSAT: nat,AScertAP: nat,AScertSAT: cert,ASsignAS: bitstring)) = rmsg4 in
+    {36}if ((rSAT_id = SAT_id_1) && ((rAP_id = AP_id_1) && ((challengeSAT = rchallengeSAT) && (rA = A)))) then
+    {37}if (checksign((rAP_id,rSAT_id,rchallengeAP,rchallengeSAT,rB,rA,rresponse,rmsg4),rsignAP,AP_pk_1) = pass) then
+    {38}if (rresponse = 1) then
+    {39}if (checksign((ADDID(ASmacAP,ASmacSAT),ASchallengeAP,ASchallengeSAT,AScheckAP,AScheckSAT,AScertAP,AScertSAT,ASsignAS),ASsignAS,AS_pk_1) = pass) then
+    {40}let SAT_bk: bkey = HashMac_BK(exponent(rB,a),rchallengeAP,rchallengeSAT) in
+    {41}let SAT_bkid: nonce = SHA256(HashMac_nonce(exponent(rB,a),rchallengeAP,rchallengeSAT)) in
+    {42}event SAT_bk_generate(SAT_id_1,SAT_bk);
+    {43}event SAT_bkid_generate(SAT_id_1,SAT_bkid)
+) | (
+    {44}let AP_id_2: id = AP_id in
+    {45}let AP_sk_1: skey = AP_sk in
+    {46}let macAP_1: macAddress = macAP in
+    {47}let macSAT_2: macAddress = macSAT in
+    {48}new sid_2: nonce;
+    {49}new g_2: G;
+    {50}let msg1_1: message = Process1((sid_2,certAP,g_2)) in
+    {51}out(c, msg1_1);
+    {52}event AP_sid_sent(AP_id_2,sid_2);
+    {53}in(c, msg2: message);
+    {54}let Process2((msid: nonce,mid: id,mchallenge: nonce,mcertSAT: cert,msignSAT: bitstring,mA: G,mg: G)) = msg2 in
+    {55}let certificat(SAT_id_2: id,SAT_pk_1: pkey,certSAT_1: certSign) = mcertSAT in
+    {56}if ((msid = sid_2) && ((mid = AP_id_2) && (mg = g_2))) then
+    {57}if (checksign((msid,mid,mchallenge,mcertSAT,mA,mg),msignSAT,SAT_pk_1) = pass) then
+    {58}new challengeAP: nonce;
+    {59}let msg3: message = Process3((ADDID(macAP_1,macSAT_2),challengeAP,mchallenge,certAP,certSAT_1)) in
+    {60}out(c, msg3);
+    {61}in(c, msg4: message);
+    {62}let Process4((ADDID(ASmacAP_1: macAddress,ASmacSAT_1: macAddress),ASchallengeAP_1: nonce,ASchallengeSAT_1: nonce,AScheckAP_1: nat,AScheckSAT_1: nat,AScertAP_1: cert,AScertSAT_1: cert,ASsignAS_1: bitstring)) = msg4 in
+    {63}let certificat(AS_id_2: id,AS_pk_2: pkey,certSignAS_1: certSign) = certAS in
+    {64}if (checksign((ADDID(ASmacAP_1,ASmacSAT_1),ASchallengeAP_1,ASchallengeSAT_1,AScheckAP_1,AScheckSAT_1,AScertAP_1,AScertSAT_1),ASsignAS_1,AS_pk_2) = pass) then
+    {65}if ((AScheckAP_1 = 1) && (AScheckSAT_1 = 1)) then
+    {66}new b: ex;
+    {67}let response: nat = 1 in
+    {68}let B: G = exponent(g_2,b) in
+    {69}let AP_bk: bkey = HashMac_BK(exponent(mA,b),challengeAP,mchallenge) in
+    {70}let AP_bkid: nonce = SHA256(HashMac_nonce(exponent(mA,b),challengeAP,mchallenge)) in
+    {71}event AP_bk_generate(AP_id_2,AP_bk);
+    {72}event AP_bkid_generate(AP_id_2,AP_bkid);
+    {73}let signAP: bitstring = sign2m((AP_id_2,SAT_id_2,challengeAP,mchallenge,B,mA,response,msg4),AP_sk_1) in
+    {74}let msg5_1: message = Process5((AP_id_2,SAT_id_2,challengeAP,mchallenge,B,mA,response,msg4,signAP)) in
+    {75}out(c, msg5_1)
+) | (
+    {76}let AS_id_3: id = AS_id in
+    {77}let AS_sk_1: skey = AS_sk in
+    {78}let AS_ssk_1: sskey = AS_ssk in
+    {79}in(c, msg3_1: message);
+    {80}let Process3((ADDID(macAP_2: macAddress,macSAT_3: macAddress),challengeAP_1: nonce,challengeSAT_1: nonce,certAP_2: cert,certSAT_2: cert)) = msg3_1 in
+    {81}if (checkcert(certAP_2,cpk(AS_ssk_1)) = pass) then
+    {82}let checkAP: nat = 1 in
+    {83}if (checkcert(certSAT_2,cpk(AS_ssk_1)) = pass) then
+    {84}let checkSAT: nat = 1 in
+    {85}if ((checkAP = 1) && (checkSAT = 1)) then
+    {86}let signAS: bitstring = sign2m((ADDID(macAP_2,macSAT_3),challengeAP_1,challengeSAT_1,checkAP,checkSAT,certAP_2,certSAT_2),AS_sk_1) in
+    {87}let msg4_1: message = Process4((ADDID(macAP_2,macSAT_3),challengeAP_1,challengeSAT_1,checkAP,checkSAT,certAP_2,certSAT_2,signAS)) in
+    {88}out(c, msg4_1)
+)
+
+File "exp2/au.pv", line 75, characters 28-30:
+Warning: identifier sid rebound.
+--  Process 1 (that is, process 0, encoded for secret AP_bkid, secret AP_bk, secret SAT_bkid, secret SAT_bk, with let moved downwards):
+{1}new SAT_id: id;
+{2}new AP_id: id;
+{3}new AS_id: id;
+{4}new SAT_sk: skey;
+{5}new AP_sk: skey;
+{6}new AS_sk: skey;
+{7}new AS_ssk: sskey;
+{8}new macSAT: macAddress;
+{9}new macAP: macAddress;
+{10}let SAT_pk: pkey = spk(SAT_sk) in
+{11}out(c, SAT_pk);
+{12}let AP_pk: pkey = spk(AP_sk) in
+{13}out(c, AP_pk);
+{14}let AS_pk: pkey = spk(AS_sk) in
+{15}out(c, AS_pk);
+{18}let certAS: cert = certificat(AS_id,AS_pk,sign2cert(AS_id,AS_pk,AS_ssk)) in
+(
+    {22}let certificat(AS_id_1: id,AS_pk_1: pkey,certSignAS: certSign) = certAS in
+    {23}in(c, msg1: message);
+    {24}let Process1((sid_1: nonce,certAP_1: cert,g: G)) = msg1 in
+    {25}let certificat(AP_id_1: id,AP_pk_1: pkey,certSignAP: certSign) = certAP_1 in
+    {19}let SAT_id_1: id = SAT_id in
+    {26}event SAT_sid(SAT_id_1,sid_1);
+    {27}new challengeSAT: nonce;
+    {28}new a: ex;
+    {29}new g_1: G;
+    {30}let A: G = exponent(g_1,a) in
+    {20}let SAT_sk_1: skey = SAT_sk in
+    {16}let certSAT: cert = certificat(SAT_id,SAT_pk,sign2cert(SAT_id,SAT_pk,AS_ssk)) in
+    {31}let signSAT: bitstring = sign2m((sid_1,AP_id_1,challengeSAT,certSAT,A,g_1),SAT_sk_1) in
+    {32}out(c, Process2((sid_1,AP_id_1,challengeSAT,certSAT,signSAT,A,g_1)));
+    {33}in(c, msg5: message);
+    {34}let Process5((rAP_id: id,rSAT_id: id,rchallengeAP: nonce,rchallengeSAT: nonce,rB: G,rA: G,rresponse: nat,rmsg4: message,rsignAP: bitstring)) = msg5 in
+    {35}let Process4((ADDID(ASmacAP: macAddress,ASmacSAT: macAddress),ASchallengeAP: nonce,ASchallengeSAT: nonce,AScheckAP: nonce,AScheckSAT: nat,AScertAP: nat,AScertSAT: cert,ASsignAS: bitstring)) = rmsg4 in
+    {36}if ((rSAT_id = SAT_id_1) && ((rAP_id = AP_id_1) && ((challengeSAT = rchallengeSAT) && (rA = A)))) then
+    {37}if (checksign((rAP_id,rSAT_id,rchallengeAP,rchallengeSAT,rB,rA,rresponse,rmsg4),rsignAP,AP_pk_1) = pass) then
+    {38}if (rresponse = 1) then
+    {39}if (checksign((ADDID(ASmacAP,ASmacSAT),ASchallengeAP,ASchallengeSAT,AScheckAP,AScheckSAT,AScertAP,AScertSAT,ASsignAS),ASsignAS,AS_pk_1) = pass) then
+    {40}let SAT_bk: bkey = HashMac_BK(exponent(rB,a),rchallengeAP,rchallengeSAT) in
+    {41}event SAT_bk_contains(SAT_bk);
+    {42}let SAT_bkid: nonce = SHA256(HashMac_nonce(exponent(rB,a),rchallengeAP,rchallengeSAT)) in
+    {43}event SAT_bkid_contains(SAT_bkid);
+    {44}event SAT_bk_generate(SAT_id_1,SAT_bk);
+    {45}event SAT_bkid_generate(SAT_id_1,SAT_bkid)
+) | (
+    {50}new sid_2: nonce;
+    {51}new g_2: G;
+    {17}let certAP: cert = certificat(AP_id,AP_pk,sign2cert(AP_id,AP_pk,AS_ssk)) in
+    {52}let msg1_1: message = Process1((sid_2,certAP,g_2)) in
+    {53}out(c, msg1_1);
+    {46}let AP_id_2: id = AP_id in
+    {54}event AP_sid_sent(AP_id_2,sid_2);
+    {55}in(c, msg2: message);
+    {56}let Process2((msid: nonce,mid: id,mchallenge: nonce,mcertSAT: cert,msignSAT: bitstring,mA: G,mg: G)) = msg2 in
+    {57}let certificat(SAT_id_2: id,SAT_pk_1: pkey,certSAT_1: certSign) = mcertSAT in
+    {58}if ((msid = sid_2) && ((mid = AP_id_2) && (mg = g_2))) then
+    {59}if (checksign((msid,mid,mchallenge,mcertSAT,mA,mg),msignSAT,SAT_pk_1) = pass) then
+    {60}new challengeAP: nonce;
+    {49}let macSAT_2: macAddress = macSAT in
+    {48}let macAP_1: macAddress = macAP in
+    {61}let msg3: message = Process3((ADDID(macAP_1,macSAT_2),challengeAP,mchallenge,certAP,certSAT_1)) in
+    {62}out(c, msg3);
+    {63}in(c, msg4: message);
+    {64}let Process4((ADDID(ASmacAP_1: macAddress,ASmacSAT_1: macAddress),ASchallengeAP_1: nonce,ASchallengeSAT_1: nonce,AScheckAP_1: nat,AScheckSAT_1: nat,AScertAP_1: cert,AScertSAT_1: cert,ASsignAS_1: bitstring)) = msg4 in
+    {65}let certificat(AS_id_2: id,AS_pk_2: pkey,certSignAS_1: certSign) = certAS in
+    {66}if (checksign((ADDID(ASmacAP_1,ASmacSAT_1),ASchallengeAP_1,ASchallengeSAT_1,AScheckAP_1,AScheckSAT_1,AScertAP_1,AScertSAT_1),ASsignAS_1,AS_pk_2) = pass) then
+    {67}if ((AScheckAP_1 = 1) && (AScheckSAT_1 = 1)) then
+    {68}new b: ex;
+    {71}let AP_bk: bkey = HashMac_BK(exponent(mA,b),challengeAP,mchallenge) in
+    {72}event AP_bk_contains(AP_bk);
+    {73}let AP_bkid: nonce = SHA256(HashMac_nonce(exponent(mA,b),challengeAP,mchallenge)) in
+    {74}event AP_bkid_contains(AP_bkid);
+    {75}event AP_bk_generate(AP_id_2,AP_bk);
+    {76}event AP_bkid_generate(AP_id_2,AP_bkid);
+    {70}let B: G = exponent(g_2,b) in
+    {69}let response: nat = 1 in
+    {47}let AP_sk_1: skey = AP_sk in
+    {77}let signAP: bitstring = sign2m((AP_id_2,SAT_id_2,challengeAP,mchallenge,B,mA,response,msg4),AP_sk_1) in
+    {78}let msg5_1: message = Process5((AP_id_2,SAT_id_2,challengeAP,mchallenge,B,mA,response,msg4,signAP)) in
+    {79}out(c, msg5_1)
+) | (
+    {83}in(c, msg3_1: message);
+    {84}let Process3((ADDID(macAP_2: macAddress,macSAT_3: macAddress),challengeAP_1: nonce,challengeSAT_1: nonce,certAP_2: cert,certSAT_2: cert)) = msg3_1 in
+    {82}let AS_ssk_1: sskey = AS_ssk in
+    {85}if (checkcert(certAP_2,cpk(AS_ssk_1)) = pass) then
+    {87}if (checkcert(certSAT_2,cpk(AS_ssk_1)) = pass) then
+    {88}let checkSAT: nat = 1 in
+    {86}let checkAP: nat = 1 in
+    {89}if ((checkAP = 1) && (checkSAT = 1)) then
+    {81}let AS_sk_1: skey = AS_sk in
+    {90}let signAS: bitstring = sign2m((ADDID(macAP_2,macSAT_3),challengeAP_1,challengeSAT_1,checkAP,checkSAT,certAP_2,certSAT_2),AS_sk_1) in
+    {91}let msg4_1: message = Process4((ADDID(macAP_2,macSAT_3),challengeAP_1,challengeSAT_1,checkAP,checkSAT,certAP_2,certSAT_2,signAS)) in
+    {92}out(c, msg4_1)
+)
+
+-- Query secret SAT_bk encoded as not (event(SAT_bk_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 127 rules (53 with conclusion selected). Queue: 8 rules.
+Starting query secret SAT_bk
+RESULT secret SAT_bk is true.
+-- Query secret SAT_bkid encoded as not (event(SAT_bkid_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 127 rules (53 with conclusion selected). Queue: 8 rules.
+Starting query secret SAT_bkid
+RESULT secret SAT_bkid is true.
+-- Query secret AP_bk encoded as not (event(AP_bk_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 140 rules (53 with conclusion selected). Queue: 16 rules.
+Starting query secret AP_bk
+goal reachable: attacker(ASmacAP_2) && attacker(ASmacSAT_2) && attacker(ASchallengeAP_2) && attacker(ASchallengeSAT_2) && attacker(SAT_id_3) && attacker(certSAT_3) && attacker(sk) && attacker(mchallenge_1) -> event(AP_bk_contains(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))) && attacker(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))
+Abbreviations:
+b_1 = b[msg4 = Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+challengeAP_2 = challengeAP[msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+
+Derivation:
+Abbreviations:
+b_1 = b[msg4 = Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+challengeAP_2 = challengeAP[msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+
+1. We assume as hypothesis that
+attacker(mchallenge_1).
+
+2. The message Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])) may be sent to the attacker at output {53}.
+attacker(Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]))).
+
+3. By 2, the attacker may know Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])).
+Using the function 1-proj-Process1 the attacker may obtain (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+attacker((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])).
+
+4. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 3-proj-3-tuple the attacker may obtain g_2[].
+attacker(g_2[]).
+
+5. We assume as hypothesis that
+attacker(sk).
+
+6. We assume as hypothesis that
+attacker(certSAT_3).
+
+7. By 5, the attacker may know sk.
+Using the function spk the attacker may obtain spk(sk).
+attacker(spk(sk)).
+
+8. We assume as hypothesis that
+attacker(SAT_id_3).
+
+9. By 8, the attacker may know SAT_id_3.
+By 7, the attacker may know spk(sk).
+By 6, the attacker may know certSAT_3.
+Using the function certificat the attacker may obtain certificat(SAT_id_3,spk(sk),certSAT_3).
+attacker(certificat(SAT_id_3,spk(sk),certSAT_3)).
+
+10. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 2-proj-3-tuple the attacker may obtain certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+attacker(certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+
+11. By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+Using the function 1-proj-certificat the attacker may obtain AP_id[].
+attacker(AP_id[]).
+
+12. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 1-proj-3-tuple the attacker may obtain sid_2[].
+attacker(sid_2[]).
+
+13. By 12, the attacker may know sid_2[].
+By 11, the attacker may know AP_id[].
+By 1, the attacker may know mchallenge_1.
+By 9, the attacker may know certificat(SAT_id_3,spk(sk),certSAT_3).
+By 4, the attacker may know g_2[].
+By 4, the attacker may know g_2[].
+Using the function 6-tuple the attacker may obtain (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]).
+attacker((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[])).
+
+14. By 13, the attacker may know (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]).
+By 5, the attacker may know sk.
+Using the function sign2m the attacker may obtain sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk).
+attacker(sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk)).
+
+15. By 12, the attacker may know sid_2[].
+By 11, the attacker may know AP_id[].
+By 1, the attacker may know mchallenge_1.
+By 9, the attacker may know certificat(SAT_id_3,spk(sk),certSAT_3).
+By 14, the attacker may know sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk).
+By 4, the attacker may know g_2[].
+By 4, the attacker may know g_2[].
+Using the function 7-tuple the attacker may obtain (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]).
+attacker((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])).
+
+16. By 15, the attacker may know (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]).
+Using the function Process2 the attacker may obtain Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])).
+attacker(Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))).
+
+17. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+So the message Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)) may be sent to the attacker at output {62}.
+attacker(Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3))).
+
+18. By 17, the attacker may know Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)).
+Using the function 1-proj-Process3 the attacker may obtain (ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3).
+attacker((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)).
+
+19. By 18, the attacker may know (ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3).
+Using the function 2-proj-5-tuple the attacker may obtain challengeAP_2.
+attacker(challengeAP_2).
+
+20. We assume as hypothesis that
+attacker(ASchallengeSAT_2).
+
+21. We assume as hypothesis that
+attacker(ASchallengeAP_2).
+
+22. We assume as hypothesis that
+attacker(ASmacSAT_2).
+
+23. We assume as hypothesis that
+attacker(ASmacAP_2).
+
+24. By 23, the attacker may know ASmacAP_2.
+By 22, the attacker may know ASmacSAT_2.
+Using the function ADDID the attacker may obtain ADDID(ASmacAP_2,ASmacSAT_2).
+attacker(ADDID(ASmacAP_2,ASmacSAT_2)).
+
+25. By 24, the attacker may know ADDID(ASmacAP_2,ASmacSAT_2).
+By 21, the attacker may know ASchallengeAP_2.
+By 20, the attacker may know ASchallengeSAT_2.
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+Using the function 5-tuple the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))).
+
+26. By 25, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+Using the function Process3 the attacker may obtain Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))).
+attacker(Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))))).
+
+27. The message Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))) that the attacker may have by 26 may be received at input {83}.
+So the message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) may be sent to the attacker at output {92}.
+attacker(Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))).
+
+28. By 27, the attacker may know Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+Using the function 1-proj-Process4 the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+
+29. By 28, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]).
+attacker(sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+
+30. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+31. By 30, the attacker may know 0.
+Using the function + the attacker may obtain 1.
+attacker(1).
+
+32. By 24, the attacker may know ADDID(ASmacAP_2,ASmacSAT_2).
+By 21, the attacker may know ASchallengeAP_2.
+By 20, the attacker may know ASchallengeSAT_2.
+By 31, the attacker may know 1.
+By 31, the attacker may know 1.
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 29, the attacker may know sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]).
+Using the function 8-tuple the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+
+33. By 32, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+Using the function Process4 the attacker may obtain Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+attacker(Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))).
+
+34. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+The message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) that the attacker may have by 33 may be received at input {63}.
+So the message Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))) may be sent to the attacker at output {79}.
+attacker(Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])))).
+
+35. By 34, the attacker may know Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))).
+Using the function 1-proj-Process5 the attacker may obtain (AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])).
+attacker((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))).
+
+36. By 35, the attacker may know (AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])).
+Using the function 5-proj-9-tuple the attacker may obtain exponent(g_2[],b_1).
+attacker(exponent(g_2[],b_1)).
+
+37. By 36, the attacker may know exponent(g_2[],b_1).
+By 19, the attacker may know challengeAP_2.
+By 1, the attacker may know mchallenge_1.
+Using the function HashMac_BK the attacker may obtain HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1).
+attacker(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)).
+
+38. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+The message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) that the attacker may have by 33 may be received at input {63}.
+So event AP_bk_contains(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)) may be executed at {72}.
+event(AP_bk_contains(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))).
+
+39. By 38, event(AP_bk_contains(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))).
+By 37, attacker(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)).
+The goals are reached, combined in the following fact:
+event(AP_bk_contains(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))) && attacker(HashMac_BK(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new SAT_id: id creating SAT_id_4 at {1}
+
+new AP_id: id creating AP_id_3 at {2}
+
+new AS_id: id creating AS_id_4 at {3}
+
+new SAT_sk: skey creating SAT_sk_2 at {4}
+
+new AP_sk: skey creating AP_sk_2 at {5}
+
+new AS_sk: skey creating AS_sk_2 at {6}
+
+new AS_ssk: sskey creating AS_ssk_2 at {7}
+
+new macSAT: macAddress creating macSAT_4 at {8}
+
+new macAP: macAddress creating macAP_3 at {9}
+
+out(c, ~M) with ~M = spk(SAT_sk_2) at {11}
+
+out(c, ~M_1) with ~M_1 = spk(AP_sk_2) at {13}
+
+out(c, ~M_2) with ~M_2 = spk(AS_sk_2) at {15}
+
+new sid_2: nonce creating sid_3 at {50}
+
+new g_2: G creating g_3 at {51}
+
+out(c, Process1((~M_3,certificat(~M_4,~M_5,~M_6),~M_7))) with ~M_3 = sid_3, ~M_4 = AP_id_3, ~M_5 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_7 = g_3 at {53}
+
+event AP_sid_sent(AP_id_3,sid_3) at {54}
+
+in(c, Process2((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),sign2m((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),~M_7,~M_7),a_3),~M_7,~M_7))) with ~M_3 = sid_3, ~M_4 = AP_id_3, sign2m((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),~M_7,~M_7),a_3) = sign2m((sid_3,AP_id_3,a_1,certificat(a_2,spk(a_3),a_4),g_3,g_3),a_3), ~M_7 = g_3, ~M_7 = g_3 at {55}
+
+new challengeAP: nonce creating challengeAP_3 at {60}
+
+out(c, Process3((ADDID(~M_8,~M_9),~M_10,~M_11,certificat(~M_12,~M_13,~M_14),~M_15))) with ~M_8 = macAP_3, ~M_9 = macSAT_4, ~M_10 = challengeAP_3, ~M_11 = a_1, ~M_12 = AP_id_3, ~M_13 = spk(AP_sk_2), ~M_14 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_15 = a_4 at {62}
+
+in(c, Process3((ADDID(a_5,a_6),a_7,a_8,certificat(~M_4,~M_1,~M_6),certificat(~M_4,~M_1,~M_6)))) with ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2) at {83}
+
+out(c, Process4((ADDID(~M_16,~M_17),~M_18,~M_19,1,1,certificat(~M_20,~M_21,~M_22),certificat(~M_23,~M_24,~M_25),~M_26))) with ~M_16 = a_5, ~M_17 = a_6, ~M_18 = a_7, ~M_19 = a_8, ~M_20 = AP_id_3, ~M_21 = spk(AP_sk_2), ~M_22 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_23 = AP_id_3, ~M_24 = spk(AP_sk_2), ~M_25 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_26 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2) at {92}
+
+in(c, Process4((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(~M_4,~M_1,~M_6),certificat(~M_4,~M_1,~M_6),~M_26))) with ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_26 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2) at {63}
+
+new b: ex creating b_2 at {68}
+
+event AP_bk_contains(HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1)) at {72} (goal)
+
+event AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1))) at {74}
+
+event AP_bk_generate(AP_id_3,HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1)) at {75}
+
+event AP_bkid_generate(AP_id_3,SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1))) at {76}
+
+out(c, Process5((~M_27,~M_28,~M_29,~M_30,~M_31,~M_32,1,Process4((ADDID(~M_33,~M_34),~M_35,~M_36,1,1,certificat(~M_37,~M_38,~M_39),certificat(~M_40,~M_41,~M_42),~M_43)),~M_44))) with ~M_27 = AP_id_3, ~M_28 = a_2, ~M_29 = challengeAP_3, ~M_30 = a_1, ~M_31 = exponent(g_3,b_2), ~M_32 = g_3, ~M_33 = a_5, ~M_34 = a_6, ~M_35 = a_7, ~M_36 = a_8, ~M_37 = AP_id_3, ~M_38 = spk(AP_sk_2), ~M_39 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_40 = AP_id_3, ~M_41 = spk(AP_sk_2), ~M_42 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_43 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2), ~M_44 = sign2m((AP_id_3,a_2,challengeAP_3,a_1,exponent(g_3,b_2),g_3,1,Process4((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2)))),AP_sk_2) at {79}
+
+The event AP_bk_contains(HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1)) is executed at {72}.
+The attacker has the message HashMac_BK(~M_31,~M_10,a_1) = HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1).
+A trace has been found.
+RESULT secret AP_bk is false.
+-- Query secret AP_bkid encoded as not (event(AP_bkid_contains(v)) && attacker(v)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 140 rules (53 with conclusion selected). Queue: 16 rules.
+Starting query secret AP_bkid
+goal reachable: attacker(ASmacAP_2) && attacker(ASmacSAT_2) && attacker(ASchallengeAP_2) && attacker(ASchallengeSAT_2) && attacker(SAT_id_3) && attacker(certSAT_3) && attacker(sk) && attacker(mchallenge_1) -> event(AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)))) && attacker(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)))
+Abbreviations:
+b_1 = b[msg4 = Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+challengeAP_2 = challengeAP[msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+
+Derivation:
+Abbreviations:
+b_1 = b[msg4 = Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+challengeAP_2 = challengeAP[msg2 = Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))]
+
+1. We assume as hypothesis that
+attacker(mchallenge_1).
+
+2. The message Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])) may be sent to the attacker at output {53}.
+attacker(Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]))).
+
+3. By 2, the attacker may know Process1((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])).
+Using the function 1-proj-Process1 the attacker may obtain (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+attacker((sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[])).
+
+4. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 3-proj-3-tuple the attacker may obtain g_2[].
+attacker(g_2[]).
+
+5. We assume as hypothesis that
+attacker(sk).
+
+6. We assume as hypothesis that
+attacker(certSAT_3).
+
+7. By 5, the attacker may know sk.
+Using the function spk the attacker may obtain spk(sk).
+attacker(spk(sk)).
+
+8. We assume as hypothesis that
+attacker(SAT_id_3).
+
+9. By 8, the attacker may know SAT_id_3.
+By 7, the attacker may know spk(sk).
+By 6, the attacker may know certSAT_3.
+Using the function certificat the attacker may obtain certificat(SAT_id_3,spk(sk),certSAT_3).
+attacker(certificat(SAT_id_3,spk(sk),certSAT_3)).
+
+10. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 2-proj-3-tuple the attacker may obtain certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+attacker(certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+
+11. By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+Using the function 1-proj-certificat the attacker may obtain AP_id[].
+attacker(AP_id[]).
+
+12. By 3, the attacker may know (sid_2[],certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),g_2[]).
+Using the function 1-proj-3-tuple the attacker may obtain sid_2[].
+attacker(sid_2[]).
+
+13. By 12, the attacker may know sid_2[].
+By 11, the attacker may know AP_id[].
+By 1, the attacker may know mchallenge_1.
+By 9, the attacker may know certificat(SAT_id_3,spk(sk),certSAT_3).
+By 4, the attacker may know g_2[].
+By 4, the attacker may know g_2[].
+Using the function 6-tuple the attacker may obtain (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]).
+attacker((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[])).
+
+14. By 13, the attacker may know (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]).
+By 5, the attacker may know sk.
+Using the function sign2m the attacker may obtain sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk).
+attacker(sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk)).
+
+15. By 12, the attacker may know sid_2[].
+By 11, the attacker may know AP_id[].
+By 1, the attacker may know mchallenge_1.
+By 9, the attacker may know certificat(SAT_id_3,spk(sk),certSAT_3).
+By 14, the attacker may know sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk).
+By 4, the attacker may know g_2[].
+By 4, the attacker may know g_2[].
+Using the function 7-tuple the attacker may obtain (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]).
+attacker((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])).
+
+16. By 15, the attacker may know (sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]).
+Using the function Process2 the attacker may obtain Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])).
+attacker(Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[]))).
+
+17. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+So the message Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)) may be sent to the attacker at output {62}.
+attacker(Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3))).
+
+18. By 17, the attacker may know Process3((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)).
+Using the function 1-proj-Process3 the attacker may obtain (ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3).
+attacker((ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3)).
+
+19. By 18, the attacker may know (ADDID(macAP[],macSAT[]),challengeAP_2,mchallenge_1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certSAT_3).
+Using the function 2-proj-5-tuple the attacker may obtain challengeAP_2.
+attacker(challengeAP_2).
+
+20. We assume as hypothesis that
+attacker(ASchallengeSAT_2).
+
+21. We assume as hypothesis that
+attacker(ASchallengeAP_2).
+
+22. We assume as hypothesis that
+attacker(ASmacSAT_2).
+
+23. We assume as hypothesis that
+attacker(ASmacAP_2).
+
+24. By 23, the attacker may know ASmacAP_2.
+By 22, the attacker may know ASmacSAT_2.
+Using the function ADDID the attacker may obtain ADDID(ASmacAP_2,ASmacSAT_2).
+attacker(ADDID(ASmacAP_2,ASmacSAT_2)).
+
+25. By 24, the attacker may know ADDID(ASmacAP_2,ASmacSAT_2).
+By 21, the attacker may know ASchallengeAP_2.
+By 20, the attacker may know ASchallengeSAT_2.
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+Using the function 5-tuple the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))).
+
+26. By 25, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))).
+Using the function Process3 the attacker may obtain Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))).
+attacker(Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))))).
+
+27. The message Process3((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])))) that the attacker may have by 26 may be received at input {83}.
+So the message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) may be sent to the attacker at output {92}.
+attacker(Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))).
+
+28. By 27, the attacker may know Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+Using the function 1-proj-Process4 the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+
+29. By 28, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+Using the function 8-proj-8-tuple the attacker may obtain sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]).
+attacker(sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+
+30. Using the function 0 the attacker may obtain 0.
+attacker(0).
+
+31. By 30, the attacker may know 0.
+Using the function + the attacker may obtain 1.
+attacker(1).
+
+32. By 24, the attacker may know ADDID(ASmacAP_2,ASmacSAT_2).
+By 21, the attacker may know ASchallengeAP_2.
+By 20, the attacker may know ASchallengeSAT_2.
+By 31, the attacker may know 1.
+By 31, the attacker may know 1.
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 10, the attacker may know certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])).
+By 29, the attacker may know sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]).
+Using the function 8-tuple the attacker may obtain (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+attacker((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+
+33. By 32, the attacker may know (ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])).
+Using the function Process4 the attacker may obtain Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))).
+attacker(Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))).
+
+34. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+The message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) that the attacker may have by 33 may be received at input {63}.
+So the message Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))) may be sent to the attacker at output {79}.
+attacker(Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])))).
+
+35. By 34, the attacker may know Process5((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))).
+Using the function 1-proj-Process5 the attacker may obtain (AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])).
+attacker((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[]))).
+
+36. By 35, the attacker may know (AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))),sign2m((AP_id[],SAT_id_3,challengeAP_2,mchallenge_1,exponent(g_2[],b_1),g_2[],1,Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[])))),AP_sk[])).
+Using the function 5-proj-9-tuple the attacker may obtain exponent(g_2[],b_1).
+attacker(exponent(g_2[],b_1)).
+
+37. By 36, the attacker may know exponent(g_2[],b_1).
+By 19, the attacker may know challengeAP_2.
+By 1, the attacker may know mchallenge_1.
+Using the function HashMac_nonce the attacker may obtain HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1).
+attacker(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)).
+
+38. By 37, the attacker may know HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1).
+Using the function SHA256 the attacker may obtain SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)).
+attacker(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))).
+
+39. The message Process2((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),sign2m((sid_2[],AP_id[],mchallenge_1,certificat(SAT_id_3,spk(sk),certSAT_3),g_2[],g_2[]),sk),g_2[],g_2[])) that the attacker may have by 16 may be received at input {55}.
+The message Process4((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),sign2m((ADDID(ASmacAP_2,ASmacSAT_2),ASchallengeAP_2,ASchallengeSAT_2,1,1,certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[])),certificat(AP_id[],spk(AP_sk[]),sign2cert(AP_id[],spk(AP_sk[]),AS_ssk[]))),AS_sk[]))) that the attacker may have by 33 may be received at input {63}.
+So event AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))) may be executed at {74}.
+event(AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)))).
+
+40. By 39, event(AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)))).
+By 38, attacker(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))).
+The goals are reached, combined in the following fact:
+event(AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1)))) && attacker(SHA256(HashMac_nonce(exponent(g_2[],b_1),challengeAP_2,mchallenge_1))).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new SAT_id: id creating SAT_id_4 at {1}
+
+new AP_id: id creating AP_id_3 at {2}
+
+new AS_id: id creating AS_id_4 at {3}
+
+new SAT_sk: skey creating SAT_sk_2 at {4}
+
+new AP_sk: skey creating AP_sk_2 at {5}
+
+new AS_sk: skey creating AS_sk_2 at {6}
+
+new AS_ssk: sskey creating AS_ssk_2 at {7}
+
+new macSAT: macAddress creating macSAT_4 at {8}
+
+new macAP: macAddress creating macAP_3 at {9}
+
+out(c, ~M) with ~M = spk(SAT_sk_2) at {11}
+
+out(c, ~M_1) with ~M_1 = spk(AP_sk_2) at {13}
+
+out(c, ~M_2) with ~M_2 = spk(AS_sk_2) at {15}
+
+new sid_2: nonce creating sid_3 at {50}
+
+new g_2: G creating g_3 at {51}
+
+out(c, Process1((~M_3,certificat(~M_4,~M_5,~M_6),~M_7))) with ~M_3 = sid_3, ~M_4 = AP_id_3, ~M_5 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_7 = g_3 at {53}
+
+event AP_sid_sent(AP_id_3,sid_3) at {54}
+
+in(c, Process2((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),sign2m((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),~M_7,~M_7),a_3),~M_7,~M_7))) with ~M_3 = sid_3, ~M_4 = AP_id_3, sign2m((~M_3,~M_4,a_1,certificat(a_2,spk(a_3),a_4),~M_7,~M_7),a_3) = sign2m((sid_3,AP_id_3,a_1,certificat(a_2,spk(a_3),a_4),g_3,g_3),a_3), ~M_7 = g_3, ~M_7 = g_3 at {55}
+
+new challengeAP: nonce creating challengeAP_3 at {60}
+
+out(c, Process3((ADDID(~M_8,~M_9),~M_10,~M_11,certificat(~M_12,~M_13,~M_14),~M_15))) with ~M_8 = macAP_3, ~M_9 = macSAT_4, ~M_10 = challengeAP_3, ~M_11 = a_1, ~M_12 = AP_id_3, ~M_13 = spk(AP_sk_2), ~M_14 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_15 = a_4 at {62}
+
+in(c, Process3((ADDID(a_5,a_6),a_7,a_8,certificat(~M_4,~M_1,~M_6),certificat(~M_4,~M_1,~M_6)))) with ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2) at {83}
+
+out(c, Process4((ADDID(~M_16,~M_17),~M_18,~M_19,1,1,certificat(~M_20,~M_21,~M_22),certificat(~M_23,~M_24,~M_25),~M_26))) with ~M_16 = a_5, ~M_17 = a_6, ~M_18 = a_7, ~M_19 = a_8, ~M_20 = AP_id_3, ~M_21 = spk(AP_sk_2), ~M_22 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_23 = AP_id_3, ~M_24 = spk(AP_sk_2), ~M_25 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_26 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2) at {92}
+
+in(c, Process4((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(~M_4,~M_1,~M_6),certificat(~M_4,~M_1,~M_6),~M_26))) with ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_4 = AP_id_3, ~M_1 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_26 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2) at {63}
+
+new b: ex creating b_2 at {68}
+
+event AP_bk_contains(HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1)) at {72}
+
+event AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1))) at {74} (goal)
+
+event AP_bk_generate(AP_id_3,HashMac_BK(exponent(g_3,b_2),challengeAP_3,a_1)) at {75}
+
+event AP_bkid_generate(AP_id_3,SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1))) at {76}
+
+out(c, Process5((~M_27,~M_28,~M_29,~M_30,~M_31,~M_32,1,Process4((ADDID(~M_33,~M_34),~M_35,~M_36,1,1,certificat(~M_37,~M_38,~M_39),certificat(~M_40,~M_41,~M_42),~M_43)),~M_44))) with ~M_27 = AP_id_3, ~M_28 = a_2, ~M_29 = challengeAP_3, ~M_30 = a_1, ~M_31 = exponent(g_3,b_2), ~M_32 = g_3, ~M_33 = a_5, ~M_34 = a_6, ~M_35 = a_7, ~M_36 = a_8, ~M_37 = AP_id_3, ~M_38 = spk(AP_sk_2), ~M_39 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_40 = AP_id_3, ~M_41 = spk(AP_sk_2), ~M_42 = sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2), ~M_43 = sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2), ~M_44 = sign2m((AP_id_3,a_2,challengeAP_3,a_1,exponent(g_3,b_2),g_3,1,Process4((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),sign2m((ADDID(a_5,a_6),a_7,a_8,1,1,certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2)),certificat(AP_id_3,spk(AP_sk_2),sign2cert(AP_id_3,spk(AP_sk_2),AS_ssk_2))),AS_sk_2)))),AP_sk_2) at {79}
+
+The event AP_bkid_contains(SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1))) is executed at {74}.
+The attacker has the message SHA256(HashMac_nonce(~M_31,~M_10,a_1)) = SHA256(HashMac_nonce(exponent(g_3,b_2),challengeAP_3,a_1)).
+A trace has been found.
+RESULT secret AP_bkid is false.
+-- Query inj-event(SAT_bk_generate(SAT_id_3,bk)) ==> inj-event(AP_bk_generate(SAT_id_3,bk)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 139 rules (53 with conclusion selected). Queue: 16 rules.
+Starting query inj-event(SAT_bk_generate(SAT_id_3,bk)) ==> inj-event(AP_bk_generate(SAT_id_3,bk))
+RESULT inj-event(SAT_bk_generate(SAT_id_3,bk)) ==> inj-event(AP_bk_generate(SAT_id_3,bk)) is true.
+-- Query inj-event(SAT_bkid_generate(SAT_id_3,bkid)) ==> inj-event(AP_bkid_generate(SAT_id_3,bkid)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 139 rules (53 with conclusion selected). Queue: 16 rules.
+Starting query inj-event(SAT_bkid_generate(SAT_id_3,bkid)) ==> inj-event(AP_bkid_generate(SAT_id_3,bkid))
+RESULT inj-event(SAT_bkid_generate(SAT_id_3,bkid)) ==> inj-event(AP_bkid_generate(SAT_id_3,bkid)) is true.
+-- Query inj-event(SAT_sid(SAT_id_3,sid_3)) ==> inj-event(AP_sid_sent(AP_id_3,sid_3)) in process 1.
+Translating the process into Horn clauses...
+Completing...
+200 rules inserted. Base: 130 rules (54 with conclusion selected). Queue: 8 rules.
+Starting query inj-event(SAT_sid(SAT_id_3,sid_3)) ==> inj-event(AP_sid_sent(AP_id_3,sid_3))
+goal reachable: attacker(sid_3) && attacker(AP_id_3) && attacker(AP_pk_2) && attacker(certSignAP_1) && attacker(g_3) -> inj-event(SAT_sid(SAT_id[],sid_3),@occ26_1)
+Abbreviations:
+@occ26_1 = @occ26[msg1 = Process1((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3))]
+
+Derivation:
+Abbreviations:
+@occ26_1 = @occ26[msg1 = Process1((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3))]
+
+1. We assume as hypothesis that
+attacker(g_3).
+
+2. We assume as hypothesis that
+attacker(certSignAP_1).
+
+3. We assume as hypothesis that
+attacker(AP_pk_2).
+
+4. We assume as hypothesis that
+attacker(AP_id_3).
+
+5. By 4, the attacker may know AP_id_3.
+By 3, the attacker may know AP_pk_2.
+By 2, the attacker may know certSignAP_1.
+Using the function certificat the attacker may obtain certificat(AP_id_3,AP_pk_2,certSignAP_1).
+attacker(certificat(AP_id_3,AP_pk_2,certSignAP_1)).
+
+6. We assume as hypothesis that
+attacker(sid_3).
+
+7. By 6, the attacker may know sid_3.
+By 5, the attacker may know certificat(AP_id_3,AP_pk_2,certSignAP_1).
+By 1, the attacker may know g_3.
+Using the function 3-tuple the attacker may obtain (sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3).
+attacker((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3)).
+
+8. By 7, the attacker may know (sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3).
+Using the function Process1 the attacker may obtain Process1((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3)).
+attacker(Process1((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3))).
+
+9. The message Process1((sid_3,certificat(AP_id_3,AP_pk_2,certSignAP_1),g_3)) that the attacker may have by 8 may be received at input {23}.
+So event SAT_sid(SAT_id[],sid_3) may be executed at {26}.
+inj-event(SAT_sid(SAT_id[],sid_3),@occ26_1).
+
+10. By 9, inj-event(SAT_sid(SAT_id[],sid_3),@occ26_1).
+The goal is reached, represented in the following fact:
+inj-event(SAT_sid(SAT_id[],sid_3),@occ26_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new SAT_id: id creating SAT_id_3 at {1}
+
+new AP_id: id creating AP_id_4 at {2}
+
+new AS_id: id creating AS_id_4 at {3}
+
+new SAT_sk: skey creating SAT_sk_2 at {4}
+
+new AP_sk: skey creating AP_sk_2 at {5}
+
+new AS_sk: skey creating AS_sk_2 at {6}
+
+new AS_ssk: sskey creating AS_ssk_2 at {7}
+
+new macSAT: macAddress creating macSAT_4 at {8}
+
+new macAP: macAddress creating macAP_3 at {9}
+
+out(c, ~M) with ~M = spk(SAT_sk_2) at {11}
+
+out(c, ~M_1) with ~M_1 = spk(AP_sk_2) at {13}
+
+out(c, ~M_2) with ~M_2 = spk(AS_sk_2) at {15}
+
+new sid_2: nonce creating sid_4 at {50}
+
+new g_2: G creating g_4 at {51}
+
+out(c, Process1((~M_3,certificat(~M_4,~M_5,~M_6),~M_7))) with ~M_3 = sid_4, ~M_4 = AP_id_4, ~M_5 = spk(AP_sk_2), ~M_6 = sign2cert(AP_id_4,spk(AP_sk_2),AS_ssk_2), ~M_7 = g_4 at {53}
+
+in(c, Process1((a_1,certificat(a_2,a_3,a_4),a_5))) at {23}
+
+event SAT_sid(SAT_id_3,a_1) at {26} (goal)
+
+The event SAT_sid(SAT_id_3,a_1) is executed at {26}.
+A trace has been found.
+RESULT inj-event(SAT_sid(SAT_id_3,sid_3)) ==> inj-event(AP_sid_sent(AP_id_3,sid_3)) is false.
+RESULT (even event(SAT_sid(SAT_id_3,sid_3)) ==> event(AP_sid_sent(AP_id_3,sid_3)) is false.)
+
+--------------------------------------------------------------
+Verification summary:
+
+Query secret SAT_bk is true.
+
+Query secret SAT_bkid is true.
+
+Query secret AP_bk is false.
+
+Query secret AP_bkid is false.
+
+Query inj-event(SAT_bk_generate(SAT_id_3,bk)) ==> inj-event(AP_bk_generate(SAT_id_3,bk)) is true.
+
+Query inj-event(SAT_bkid_generate(SAT_id_3,bkid)) ==> inj-event(AP_bkid_generate(SAT_id_3,bkid)) is true.
+
+Query inj-event(SAT_sid(SAT_id_3,sid_3)) ==> inj-event(AP_sid_sent(AP_id_3,sid_3)) is false.
+
+--------------------------------------------------------------
+
