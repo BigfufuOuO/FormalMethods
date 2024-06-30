@@ -79,7 +79,7 @@ query SAT_id:id, AP_id:id, sid:nonce; inj-event(SAT_sid(SAT_id, sid)) ==> inj-ev
 let SAT_Auth(SAT_id:id, SAT_sk:skey, certSAT:cert, certAS:cert, macSAT: macAddress ) = (
     let certificat(AS_id, AS_pk, certSignAS) = certAS in
     in(c, msg1:message);
-    let Process1((sid: nonce, certAP: cert, g: G, b: ex)) = msg1 in
+    let Process1((sid: nonce, certAP: cert)) = msg1 in
     let certificat(AP_id, AP_pk, certSignAP) = certAP in
     (* 接收到AP的消息 *)
     (* 生成sid *)
@@ -122,7 +122,7 @@ let AP_Auth(AP_id:id, AP_sk:skey, certAP:cert, certAS: cert, macAP: macAddress, 
     new g: G;
     new b: ex;
     let B = exponent(g, b) in
-    let msg1 = Process1((sid, certAP, g, B)) in
+    let msg1 = Process1((sid, certAP)) in
     out(c, msg1);
     (* 发送到SAT的消息 *)
     event AP_sid_sent(AP_id, sid);

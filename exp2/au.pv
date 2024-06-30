@@ -88,7 +88,7 @@ let SAT_Auth(SAT_id:id, SAT_sk:skey, certSAT:cert, certAS:cert, macSAT: macAddre
     (* 生成Diffie-Hellman 密钥 *)
     new challengeSAT: nonce;
     new a: ex;
-    new g: G;
+    (* new g: G; *)
     let A = exponent(g, a) in
     let signSAT = sign2m((sid, AP_id, challengeSAT, certSAT, A, g), SAT_sk) in
     out(c, Process2((sid, AP_id, challengeSAT, certSAT, signSAT, A, g)));
